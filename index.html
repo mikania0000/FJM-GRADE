@@ -525,6 +525,57 @@
                     { word: "choices", pos: "n.", zh: "選擇", en: "An act of selecting or making a decision.", ex_en: "You have two choices.", ex_zh: "你有兩個選擇。" },
                     { word: "more", pos: "adj.", zh: "更多的", en: "A greater or additional amount or degree.", ex_en: "We need more time.", ex_zh: "我們需要更多時間。" }
                 ]
+            },
+            // 新增 Quotes
+            {
+                zh: "做偉大工作的唯一方法，就是熱愛你所做的事。",
+                en: "The only way to do great work is to love what you do.",
+                keywords: [
+                    { word: "only", pos: "adj.", zh: "唯一的", en: "Alone of its or their kind.", ex_en: "This is the only way.", ex_zh: "這是唯一的方法。" },
+                    { word: "great", pos: "adj.", zh: "偉大的；極好的", en: "Of an extent, amount, or intensity considerably above the normal or average.", ex_en: "She is a great teacher.", ex_zh: "她是一位偉大的老師。" },
+                    { word: "love", pos: "v.", zh: "熱愛；愛", en: "Feel deep affection for.", ex_en: "I love reading.", ex_zh: "我熱愛閱讀。" },
+                    { word: "work", pos: "n.", zh: "工作；作品", en: "Activity involving mental or physical effort.", ex_en: "Keep up the good work.", ex_zh: "繼續保持好表現。" }
+                ]
+            },
+            {
+                zh: "在完成之前，事情總是看起來不可能。",
+                en: "It always seems impossible until it is done.",
+                keywords: [
+                    { word: "always", pos: "adv.", zh: "總是", en: "At all times; on all occasions.", ex_en: "He is always late.", ex_zh: "他總是遲到。" },
+                    { word: "seems", pos: "v.", zh: "似乎；看起來", en: "Give the impression or sensation of being something.", ex_en: "It seems correct.", ex_zh: "這看起來是對的。" },
+                    { word: "impossible", pos: "adj.", zh: "不可能的", en: "Not able to occur, exist, or be done.", ex_en: "Nothing is impossible.", ex_zh: "沒有什麼是不可能的。" },
+                    { word: "until", pos: "conj.", zh: "直到...為止", en: "Up to the point in time or the event mentioned.", ex_en: "Wait until I return.", ex_zh: "等到我回來。" }
+                ]
+            },
+            {
+                zh: "不要盯著時鐘看；做它在做的事。繼續前進。",
+                en: "Don't watch the clock; do what it does. Keep going.",
+                keywords: [
+                    { word: "watch", pos: "v.", zh: "注視；觀看", en: "Look at or observe attentively.", ex_en: "Watch your step.", ex_zh: "小心腳步。" },
+                    { word: "clock", pos: "n.", zh: "時鐘", en: "A mechanical or electrical device for measuring time.", ex_en: "The clock struck twelve.", ex_zh: "鐘敲了十二下。" },
+                    { word: "Keep", pos: "v.", zh: "保持；繼續", en: "Continue or cause to continue in a specified condition.", ex_en: "Keep trying.", ex_zh: "繼續嘗試。" },
+                    { word: "going", pos: "v.", zh: "進行；前進", en: "Moving or proceeding.", ex_en: "Get going.", ex_zh: "開始行動。" }
+                ]
+            },
+            {
+                zh: "成功不是終點，失敗也不是末日：重要的是繼續前進的勇氣。",
+                en: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+                keywords: [
+                    { word: "final", pos: "adj.", zh: "最後的", en: "Coming at the end of a series.", ex_en: "This is the final decision.", ex_zh: "這是最後的決定。" },
+                    { word: "fatal", pos: "adj.", zh: "致命的；毀滅性的", en: "Causing death or failure.", ex_en: "A fatal mistake.", ex_zh: "一個致命的錯誤。" },
+                    { word: "courage", pos: "n.", zh: "勇氣", en: "The ability to do something that frightens one.", ex_en: "She has great courage.", ex_zh: "她很有勇氣。" },
+                    { word: "continue", pos: "v.", zh: "繼續", en: "Persist in an activity or process.", ex_en: "Please continue.", ex_zh: "請繼續。" }
+                ]
+            },
+            {
+                zh: "大膽夢想，勇於失敗。",
+                en: "Dream big and dare to fail.",
+                keywords: [
+                    { word: "Dream", pos: "v.", zh: "夢想", en: "Contemplate the possibility of doing something.", ex_en: "Dream of a better future.", ex_zh: "夢想更美好的未來。" },
+                    { word: "big", pos: "adv.", zh: "大大地；宏偉地", en: "On a grand scale.", ex_en: "Think big.", ex_zh: "格局要大。" },
+                    { word: "dare", pos: "v.", zh: "敢於", en: "Have the courage to do something.", ex_en: "Dare to be different.", ex_zh: "敢於與眾不同。" },
+                    { word: "fail", pos: "v.", zh: "失敗", en: "Be unsuccessful in achieving one's goal.", ex_en: "Don't be afraid to fail.", ex_zh: "不要害怕失敗。" }
+                ]
             }
         ];
 
@@ -539,7 +590,18 @@
             { question: "-ology", type: "字尾 Suffix", answer: "...學/研究", options: ["...學/研究", "人", "能夠的", "動作"], sound: "ology" },
             { question: "Aquarium", type: "單字 Word", answer: "水族館", options: ["水族館", "體育館", "圖書館", "博物館"], sound: "Aquarium" },
             { question: "Education", type: "單字 Word", answer: "教育", options: ["教育", "經濟", "環境", "情緒"], sound: "Education" },
-            { question: "Success", type: "單字 Word", answer: "成功", options: ["成功", "失敗", "過程", "挑戰"], sound: "Success" }
+            { question: "Success", type: "單字 Word", answer: "成功", options: ["成功", "失敗", "過程", "挑戰"], sound: "Success" },
+            // 新增 Game Data
+            { question: "Chron-", type: "字根 Root", answer: "時間", options: ["時間", "顏色", "形狀", "速度"], sound: "Chron" },
+            { question: "Micro-", type: "字根 Root", answer: "微小的", options: ["微小的", "巨大的", "快速的", "緩慢的"], sound: "Micro" },
+            { question: "Auto-", type: "字根 Root", answer: "自己的/自動", options: ["自己的/自動", "別人的", "手動的", "群體的"], sound: "Auto" },
+            { question: "Pre-", type: "字首 Prefix", answer: "在...之前", options: ["在...之前", "在...之後", "在...之間", "超越"], sound: "Pre" },
+            { question: "Post-", type: "字首 Prefix", answer: "在...之後", options: ["在...之後", "在...之前", "反對", "共同"], sound: "Post" },
+            { question: "Mis-", type: "字首 Prefix", answer: "錯誤的", options: ["錯誤的", "正確的", "新的", "舊的"], sound: "Mis" },
+            { question: "-ful", type: "字尾 Suffix", answer: "充滿...的", options: ["充滿...的", "沒有...的", "關於...的", "使...成為"], sound: "ful" },
+            { question: "-less", type: "字尾 Suffix", answer: "沒有...的", options: ["沒有...的", "充滿...的", "像...一樣", "能夠...的"], sound: "less" },
+            { question: "Knowledge", type: "單字 Word", answer: "知識", options: ["知識", "力量", "夢想", "勇氣"], sound: "Knowledge" },
+            { question: "Diligent", type: "單字 Word", answer: "勤勉的", options: ["勤勉的", "懶惰的", "聰明的", "幸運的"], sound: "Diligent" }
         ];
 
         let currentQuestion = null;
