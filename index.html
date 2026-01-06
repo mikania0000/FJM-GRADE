@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學校成績查詢系統</title>
+    <title>鳳甲國中成績查詢系統</title>
     <!-- 引入 Tailwind CSS (快速排版) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Font Awesome (圖示) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap'); /* 引入英文襯線字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap');
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            /* 背景漸層特效 */
             background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-            background-attachment: fixed; /* 固定背景 */
+            background-attachment: fixed;
             min-height: 100vh;
         }
 
-        /* 主容器進場動畫 */
         .fade-in-up {
             animation: fadeInUp 0.8s ease-out forwards;
             opacity: 0;
@@ -28,16 +26,12 @@
         }
 
         @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 載入中動畫 */
         .loading-spinner {
             border: 4px solid #e5e7eb;
-            border-top: 4px solid #2563eb; /* 藍色 */
+            border-top: 4px solid #2563eb;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -48,108 +42,129 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 表格響應式優化 */
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
         
-        /* 表格列依序滑入特效 */
         .table-row-anim {
             opacity: 0;
             transform: translateX(-10px);
             animation: slideInLeft 0.5s ease-out forwards;
         }
         @keyframes slideInLeft {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        /* 響應式字體設定 
-           手機版：標題 20px / 內容 18px (適讀大小)
-           電腦版 (大於 768px)：標題 24px / 內容 22px (您指定的大字體)
-        */
-        .text-title-size {
-            font-size: 20px !important; 
-            line-height: 1.4;
-        }
-        .text-content-size {
-            font-size: 18px !important;
-            line-height: 1.4;
-        }
+        .text-title-size { font-size: 20px !important; line-height: 1.4; }
+        .text-content-size { font-size: 18px !important; line-height: 1.4; }
 
         @media (min-width: 768px) {
-            .text-title-size {
-                font-size: 24px !important;
-            }
-            .text-content-size {
-                font-size: 22px !important;
-            }
+            .text-title-size { font-size: 24px !important; }
+            .text-content-size { font-size: 22px !important; }
         }
 
-        /* 溫馨小語區塊特效 */
         .quote-container {
-            background-color: #fff9c4; /* 淡黃色背景 */
+            background-color: #fff9c4;
             border-left: 5px solid #fbc02d;
             transition: all 0.3s ease;
+            position: relative; 
         }
         .quote-container:hover {
             transform: scale(1.01);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
-        /* 英文字體 */
-        .font-english {
-            font-family: 'Lora', serif;
+        .font-english { font-family: 'Lora', serif; }
+
+        .speak-btn { cursor: pointer; transition: all 0.2s; }
+        .speak-btn:hover { color: #d97706; transform: scale(1.1); }
+        .speak-btn:active { transform: scale(0.95); }
+
+        /* 單字互動特效 */
+        .vocab-highlight {
+            border-bottom: 2px dashed #d97706;
+            cursor: pointer; /* 改為 pointer 提示可點擊 */
+            color: #b45309;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.2s ease;
+            display: inline-block;
+            user-select: none; /* 防止手機長按選取 */
+            -webkit-tap-highlight-color: rgba(253, 230, 138, 0.5); /* 手機點擊高亮色 */
+        }
+        .vocab-highlight:hover, .vocab-highlight.active {
+            background-color: #fef3c7;
+            color: #92400e;
+            transform: translateY(-2px);
         }
 
-        /* 語音按鈕特效 */
-        .speak-btn {
-            cursor: pointer;
-            transition: all 0.2s;
+        /* 單字卡片 Tooltip (固定定位 Fixed) */
+        #vocabTooltip {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            position: fixed; /* 改為 Fixed，最穩定的定位方式 */
+            z-index: 10000; /* 確保最上層 */
+            pointer-events: none; /* 讓滑鼠穿透，避免閃爍 */
         }
-        .speak-btn:hover {
-            color: #d97706; /* 暗黃色 */
-            transform: scale(1.1);
-        }
-        .speak-btn:active {
-            transform: scale(0.95);
+        #vocabTooltip.show {
+            opacity: 1;
+            visibility: visible;
         }
 
-        /* 拉桿樣式客製化 */
-        input[type=range] {
-            -webkit-appearance: none; /* 清除預設樣式 */
-            background: transparent;
+        /* 裝飾箭頭 */
+        .tooltip-arrow {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
         }
-        input[type=range]:focus {
-            outline: none;
+        /* 箭頭在下方 (卡片在上方時) */
+        .tooltip-arrow.bottom {
+            bottom: -8px;
+            border-top: 8px solid white;
+            filter: drop-shadow(0 2px 1px rgba(0,0,0,0.1));
         }
-        /* 拉桿軌道 */
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #fde68a; /* 淺黃色軌道 */
-            border-radius: 3px;
+        /* 箭頭在上方 (卡片在下方時) */
+        .tooltip-arrow.top {
+            top: -8px;
+            border-bottom: 8px solid white;
+            filter: drop-shadow(0 -2px 1px rgba(0,0,0,0.1));
         }
-        /* 拉桿按鈕 */
-        input[type=range]::-webkit-slider-thumb {
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #d97706; /* 深黃色按鈕 */
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -5px; /* 對齊軌道 */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #fde68a; border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 50%; background: #d97706; cursor: pointer; -webkit-appearance: none; margin-top: -5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
 
-    <!-- 主容器 (加入 fade-in-up 動畫) -->
+    <!-- 單字卡片 Tooltip -->
+    <div id="vocabTooltip" class="bg-white border border-gray-200 shadow-2xl rounded-lg p-4 max-w-xs w-full md:w-80 text-left">
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <h4 id="tt-word" class="text-xl font-bold text-blue-700 font-english capitalize"></h4>
+                <span id="tt-pos" class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded italic"></span>
+            </div>
+            <i class="fas fa-volume-up text-blue-500 animate-pulse"></i>
+        </div>
+        <div class="space-y-2">
+            <p class="text-sm text-gray-800 border-l-2 border-blue-400 pl-2"><span id="tt-def-zh" class="font-bold"></span> <span id="tt-def-en" class="text-gray-500 text-xs block mt-0.5"></span></p>
+            <div class="bg-blue-50 p-2 rounded text-xs mt-2">
+                <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1"></p>
+                <p id="tt-ex-zh" class="text-gray-600"></p>
+            </div>
+        </div>
+        <!-- 箭頭容器 -->
+        <div id="tooltipArrow" class="tooltip-arrow bottom"></div>
+    </div>
+
+    <!-- 主容器 -->
     <div class="w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden fade-in-up bg-opacity-95">
         
         <!-- 標題圖片區 -->
@@ -161,40 +176,36 @@
                  style="max-height: 200px; md:max-height: 250px;" 
                  onerror="this.style.display='none'; document.getElementById('backup-title').style.display='block';">
             
-            <!-- 圖片載入失敗時的備用文字 -->
             <div id="backup-title" style="display:none;" class="py-10">
-                <h1 class="font-bold text-gray-800 tracking-wide text-title-size">學校成績查詢系統</h1>
+                <h1 class="font-bold text-gray-800 tracking-wide text-title-size">鳳甲國中成績查詢系統</h1>
                 <p class="text-sm text-gray-500 mt-2">(若圖片無法顯示，請確認 Google Drive 檔案權限是否設為「公開」)</p>
             </div>
         </div>
 
-        <!-- 溫馨小語區塊 (中英對照 + 語音 + 語速調整) -->
+        <!-- 溫馨小語區塊 -->
         <div class="w-full px-4 md:px-6 py-4 bg-yellow-50">
-            <!-- 手機版改為垂直排列 (flex-col)，電腦版水平 (md:flex-row) -->
-            <div class="quote-container p-4 rounded-r-lg flex flex-col md:flex-row items-start md:items-center shadow-sm relative">
+            <div class="quote-container p-4 rounded-r-lg flex flex-col md:flex-row items-start md:items-center shadow-sm">
                 
-                <!-- 燈泡圖示 -->
                 <div class="mr-0 md:mr-5 text-yellow-600 mb-3 md:mb-0 self-start">
                     <i class="fas fa-lightbulb text-3xl"></i>
                 </div>
                 
                 <div class="flex-1 w-full">
-                    <!-- 標題與語速控制列 -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 border-b border-yellow-200 pb-2">
-                        <h3 class="font-bold text-gray-800 text-lg mb-2 md:mb-0">每日溫馨小語 Quote of the Day</h3>
+                        <div class="flex flex-col">
+                            <h3 class="font-bold text-gray-800 text-lg mb-0">每日溫馨小語 Quote of the Day</h3>
+                            <span class="text-xs text-orange-600 font-bold"><i class="fas fa-hand-pointer mr-1"></i>滑鼠移至(或點擊)英文單字查閱</span>
+                        </div>
                         
-                        <!-- 語速控制器 (新功能) -->
-                        <div class="flex items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-yellow-100">
+                        <div class="flex items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-yellow-100 mt-2 md:mt-0">
                             <span class="text-xs text-gray-500 mr-2 flex items-center">
                                 <i class="fas fa-tachometer-alt mr-1"></i> 語速
                             </span>
-                            <!-- 拉桿：範圍 0.5 到 1.5，預設 0.9 -->
                             <input type="range" id="speechRate" min="0.5" max="1.5" step="0.1" value="0.9" class="w-24 mr-2">
                             <span id="rateValue" class="text-xs font-bold text-yellow-700 w-8 text-right">0.9x</span>
                         </div>
                     </div>
                     
-                    <!-- 內容顯示區 -->
                     <div id="dailyQuote" class="transition-opacity duration-300 mt-2">
                         <p class="text-gray-800 font-medium text-xl mb-1">載入中...</p>
                         <p class="text-gray-600 font-normal italic text-lg font-english">Loading...</p>
@@ -205,9 +216,7 @@
 
         <!-- 查詢表單區 -->
         <div class="p-4 md:p-6 lg:p-10">
-            <!-- 手機版間距調整為 gap-6 -->
             <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                
                 <!-- 1. 學號 -->
                 <div class="col-span-1">
                     <label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId">
@@ -217,7 +226,7 @@
                            id="studentId" type="text" placeholder="請輸入學號" required>
                 </div>
 
-                <!-- 2. 身分證後4碼 (含顯示/隱藏切換) -->
+                <!-- 2. 身分證後4碼 -->
                 <div class="col-span-1">
                     <label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4">
                         <i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼
@@ -225,14 +234,13 @@
                     <div class="relative">
                         <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" 
                                id="idLast4" type="password" placeholder="後4碼" maxlength="6" required>
-                        <!-- 切換顯示按鈕 -->
                         <button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110">
                             <i class="fas fa-eye text-2xl"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- 3. 學年度 (動態載入) -->
+                <!-- 3. 學年度 -->
                 <div class="col-span-1">
                     <label class="block text-gray-700 font-bold mb-2 text-title-size" for="yearSelect">
                         <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>學年度
@@ -247,7 +255,7 @@
                     </div>
                 </div>
 
-                <!-- 4. 學期 (選填) -->
+                <!-- 4. 學期 -->
                 <div class="col-span-1">
                     <label class="block text-gray-700 font-bold mb-2 text-title-size" for="semesterSelect">
                         <i class="fas fa-clock text-blue-500 mr-2"></i>學期 (選填)
@@ -264,7 +272,7 @@
                     </div>
                 </div>
 
-                <!-- 5. 段考 (選填) -->
+                <!-- 5. 段考 -->
                 <div class="col-span-1">
                     <label class="block text-gray-700 font-bold mb-2 text-title-size" for="examSelect">
                         <i class="fas fa-file-alt text-blue-500 mr-2"></i>段考 (選填)
@@ -293,10 +301,7 @@
                 </div>
             </form>
             
-            <!-- 狀態訊息提示 -->
             <div id="messageArea" class="mt-6 text-center hidden p-4 rounded-lg text-content-size font-bold"></div>
-            
-            <!-- 載入中動畫 -->
             <div id="loading" class="hidden flex flex-col justify-center items-center mt-12 mb-8">
                 <div class="loading-spinner mb-4" style="width: 50px; height: 50px; border-width: 6px;"></div>
                 <span class="text-gray-600 font-medium animate-pulse text-title-size">正在從資料庫查詢中...</span>
@@ -311,14 +316,12 @@
                     <table class="min-w-full leading-normal">
                         <thead>
                             <tr class="bg-gray-100 text-gray-800 uppercase font-bold tracking-wider text-title-size">
-                                <!-- 固定欄位 -->
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學年度</th>
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學期</th>
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">段考</th>
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">班級</th>
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">座號</th>
                                 <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">姓名</th>
-                                <!-- 成績欄位 (置中) -->
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">國語</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">英文</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">數學</th>
@@ -327,15 +330,12 @@
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">公民</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">自然</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地科</th>
-                                <!-- 統計欄位 -->
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 text-red-600 font-extrabold bg-red-50 whitespace-nowrap">加權平均</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科班排</th>
                                 <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科校排</th>
                             </tr>
                         </thead>
-                        <tbody id="resultBody" class="text-gray-700 text-content-size">
-                            <!-- JS 將自動插入資料列 -->
-                        </tbody>
+                        <tbody id="resultBody" class="text-gray-700 text-content-size"></tbody>
                     </table>
                 </div>
             </div>
@@ -343,81 +343,283 @@
         
         <!-- 頁尾 -->
         <div class="bg-gray-100 border-t border-gray-200 py-6 text-center text-gray-500 text-content-size px-4">
-            &copy; <span id="currentYear"></span> 學校成績查詢系統 | 
+            &copy; <span id="currentYear"></span> 鳳甲國中成績查詢系統 | 
             <span class="text-blue-500 italic font-english block md:inline mt-2 md:mt-0">Believe in yourself.</span>
         </div>
     </div>
 
-    <!-- JavaScript 核心邏輯 -->
     <script>
-        // 設定年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // 溫馨小語資料庫 (中英對照)
         const quotes = [
-            { zh: "每一次的努力，都是未來的養分。", en: "Every effort is a nutrient for the future." },
-            { zh: "成績只是一個數字，重要的是你學到了什麼。", en: "Grades are just numbers; what matters is what you learn." },
-            { zh: "相信自己，你比想像中更強大。", en: "Believe in yourself; you are stronger than you think." },
-            { zh: "失敗不是終點，而是成功的墊腳石。", en: "Failure is not the end, but a stepping stone to success." },
-            { zh: "今天的努力，是為了遇見更好的自己。", en: "Today's effort is to meet a better version of yourself." },
-            { zh: "保持好奇心，世界將為你打開大門。", en: "Stay curious, and the world will open its doors for you." },
-            { zh: "不要害怕犯錯，那是學習的必經之路。", en: "Don't be afraid of making mistakes; they are part of the learning journey." },
-            { zh: "堅持下去，最美的風景在頂峰。", en: "Persevere, for the most beautiful view is at the summit." },
-            { zh: "學習是為了讓自己有更多選擇的權利。", en: "Learning gives you the power to have more choices." }
+            { 
+                zh: "每一次的努力，都是未來的養分。", 
+                en: "Every effort is a nutrient for the future.",
+                keywords: [
+                    { word: "effort", pos: "n.", zh: "努力；盡力", en: "A vigorous or determined attempt.", ex_en: "The job requires a lot of effort.", ex_zh: "這份工作需要很多努力。" },
+                    { word: "nutrient", pos: "n.", zh: "養分；營養物", en: "A substance that provides nourishment.", ex_en: "Plants draw minerals and nutrients from the soil.", ex_zh: "植物從土壤中吸收礦物質和養分。" },
+                    { word: "future", pos: "n.", zh: "未來", en: "The time or a period of time following the moment of speaking.", ex_en: "We need to plan for the future.", ex_zh: "我們需要為未來做計畫。" },
+                    { word: "Every", pos: "adj.", zh: "每一個", en: "Used when referring to all the members of a group.", ex_en: "Every student passed.", ex_zh: "每個學生都通過了。" }
+                ]
+            },
+            { 
+                zh: "成績只是一個數字，重要的是你學到了什麼。", 
+                en: "Grades are just numbers; what matters is what you learn.",
+                keywords: [
+                    { word: "grades", pos: "n.", zh: "成績；分數", en: "A mark indicating the quality of a student's work.", ex_en: "She got good grades last semester.", ex_zh: "她上學期成績很好。" },
+                    { word: "matter", pos: "v.", zh: "重要；有關係", en: "Be of importance; have significance.", ex_en: "It doesn't matter what you wear.", ex_zh: "你穿什麼都不重要。" },
+                    { word: "learn", pos: "v.", zh: "學習", en: "Gain or acquire knowledge.", ex_en: "I want to learn Spanish.", ex_zh: "我想學西班牙文。" },
+                    { word: "numbers", pos: "n.", zh: "數字", en: "An arithmetical value, expressed by a word, symbol, or figure.", ex_en: "Numbers don't lie.", ex_zh: "數字不會說謊。" }
+                ]
+            },
+            { 
+                zh: "相信自己，你比想像中更強大。", 
+                en: "Believe in yourself; you are stronger than you think.",
+                keywords: [
+                    { word: "believe", pos: "v.", zh: "相信", en: "Accept that (something) is true.", ex_en: "I believe in you.", ex_zh: "我相信你。" },
+                    { word: "stronger", pos: "adj.", zh: "更強大的 (比較級)", en: "More powerful or robust.", ex_en: "What doesn't kill you makes you stronger.", ex_zh: "殺不死你的會使你更強大。" },
+                    { word: "think", pos: "v.", zh: "認為；思考", en: "Have a particular opinion, belief, or idea.", ex_en: "Think before you speak.", ex_zh: "說話前先思考。" },
+                    { word: "yourself", pos: "pron.", zh: "你自己", en: "Used to refer to the person being addressed.", ex_en: "Look at yourself.", ex_zh: "看看你自己。" }
+                ]
+            },
+            { 
+                zh: "失敗不是終點，而是成功的墊腳石。", 
+                en: "Failure is not the end, but a stepping stone to success.",
+                keywords: [
+                    { word: "failure", pos: "n.", zh: "失敗", en: "Lack of success.", ex_en: "Failure teaches us lessons.", ex_zh: "失敗教會我們課題。" },
+                    { word: "end", pos: "n.", zh: "終點；結束", en: "A final part of something.", ex_en: "This is not the end.", ex_zh: "這還不是結束。" },
+                    { word: "stone", pos: "n.", zh: "石頭", en: "Hard solid non-metallic mineral matter.", ex_en: "The path is made of stone.", ex_zh: "這條路由石頭鋪成。" },
+                    { word: "success", pos: "n.", zh: "成功", en: "The accomplishment of an aim or purpose.", ex_en: "Hard work is the key to success.", ex_zh: "努力是成功的關鍵。" }
+                ]
+            },
+            { 
+                zh: "今天的努力，是為了遇見更好的自己。", 
+                en: "Today's effort is to meet a better version of yourself.",
+                keywords: [
+                    { word: "effort", pos: "n.", zh: "努力", en: "Physical or mental activity needed to achieve something.", ex_en: "Good effort!", ex_zh: "做得好！" },
+                    { word: "meet", pos: "v.", zh: "遇見；滿足", en: "Come into the presence or company of someone.", ex_en: "Nice to meet you.", ex_zh: "很高興認識你。" },
+                    { word: "version", pos: "n.", zh: "版本；形式", en: "A particular form of something differing from others.", ex_en: "Update to the latest version.", ex_zh: "更新到最新版本。" },
+                    { word: "better", pos: "adj.", zh: "更好的", en: "Of a more excellent or effective type or quality.", ex_en: "I feel much better.", ex_zh: "我感覺好多了。" }
+                ]
+            },
+            { 
+                zh: "保持好奇心，世界將為你打開大門。", 
+                en: "Stay curious, and the world will open its doors for you.",
+                keywords: [
+                    { word: "stay", pos: "v.", zh: "保持；停留", en: "Remain in the same state.", ex_en: "Stay calm.", ex_zh: "保持冷靜。" },
+                    { word: "curious", pos: "adj.", zh: "好奇的", en: "Eager to know or learn something.", ex_en: "I was curious about the noise.", ex_zh: "我對那個聲音感到好奇。" },
+                    { word: "world", pos: "n.", zh: "世界", en: "The earth, together with all of its countries and peoples.", ex_en: "Travel the world.", ex_zh: "環遊世界。" },
+                    { word: "open", pos: "v.", zh: "打開", en: "Move so as to leave a space allowing access.", ex_en: "Open the window.", ex_zh: "打開窗戶。" }
+                ]
+            },
+            { 
+                zh: "不要害怕犯錯，那是學習的必經之路。", 
+                en: "Don't be afraid of making mistakes; they are part of the learning journey.",
+                keywords: [
+                    { word: "afraid", pos: "adj.", zh: "害怕的", en: "Feeling fear or anxiety.", ex_en: "Don't be afraid to ask.", ex_zh: "不要害怕提問。" },
+                    { word: "mistakes", pos: "n.", zh: "錯誤", en: "Actions or judgments that are misguided or wrong.", ex_en: "We all make mistakes.", ex_zh: "我們都會犯錯。" },
+                    { word: "journey", pos: "n.", zh: "旅程", en: "An act of traveling from one place to another.", ex_en: "Life is a journey.", ex_zh: "人生是一場旅程。" },
+                    { word: "part", pos: "n.", zh: "部分", en: "An amount or section which, when combined with others, makes up the whole.", ex_en: "It is part of the plan.", ex_zh: "這是計畫的一部分。" }
+                ]
+            },
+            { 
+                zh: "堅持下去，最美的風景在頂峰。", 
+                en: "Persevere, for the most beautiful view is at the summit.",
+                keywords: [
+                    { word: "persevere", pos: "v.", zh: "堅持不懈", en: "Continue in a course of action even in the face of difficulty.", ex_en: "He persevered despite the injury.", ex_zh: "儘管受傷，他仍堅持下去。" },
+                    { word: "beautiful", pos: "adj.", zh: "美麗的", en: "Pleasing the senses or mind aesthetically.", ex_en: "What a beautiful day.", ex_zh: "多美好的一天。" },
+                    { word: "view", pos: "n.", zh: "景色；觀點", en: "The ability to see something or to be seen.", ex_en: "The room has a sea view.", ex_zh: "這房間有海景。" },
+                    { word: "summit", pos: "n.", zh: "頂峰；高峰會", en: "The highest point of a hill or mountain.", ex_en: "They reached the summit.", ex_zh: "他們抵達了頂峰。" }
+                ]
+            },
+            { 
+                zh: "學習是為了讓自己有更多選擇的權利。", 
+                en: "Learning gives you the power to have more choices.",
+                keywords: [
+                    { word: "learning", pos: "n.", zh: "學習", en: "The acquisition of knowledge or skills.", ex_en: "Learning never stops.", ex_zh: "學習永無止盡。" },
+                    { word: "power", pos: "n.", zh: "力量；權力", en: "The ability to do something or act in a particular way.", ex_en: "Knowledge is power.", ex_zh: "知識就是力量。" },
+                    { word: "choices", pos: "n.", zh: "選擇", en: "An act of selecting or making a decision.", ex_en: "You have two choices.", ex_zh: "你有兩個選擇。" },
+                    { word: "more", pos: "adj.", zh: "更多的", en: "A greater or additional amount or degree.", ex_en: "We need more time.", ex_zh: "我們需要更多時間。" }
+                ]
+            }
         ];
 
-        let currentQuoteData = null; // 用來儲存當前小語，供朗讀使用
-
-        // 語速控制變數
+        let currentQuoteData = null;
         const rateInput = document.getElementById('speechRate');
         const rateValue = document.getElementById('rateValue');
 
-        // 監聽語速改變，即時更新顯示數值
+        const tooltip = document.getElementById('vocabTooltip');
+        const tooltipArrow = document.getElementById('tooltipArrow');
+        const ttWord = document.getElementById('tt-word');
+        const ttPos = document.getElementById('tt-pos');
+        const ttDefZh = document.getElementById('tt-def-zh');
+        const ttDefEn = document.getElementById('tt-def-en');
+        const ttExEn = document.getElementById('tt-ex-en');
+        const ttExZh = document.getElementById('tt-ex-zh');
+
         rateInput.addEventListener('input', (e) => {
             rateValue.textContent = e.target.value + 'x';
         });
 
-        // 隨機顯示小語
+        // 點擊空白處關閉 Tooltip
+        document.addEventListener('click', (e) => {
+            // 如果點擊目標不是 Tooltip 內部，也不是單字 Highlight 區域，就關閉
+            if (!tooltip.contains(e.target) && !e.target.classList.contains('vocab-highlight')) {
+                hideTooltip();
+            }
+        });
+
+        function processQuoteWithKeywords(quoteData) {
+            let processedHtml = quoteData.en;
+            const sortedKeywords = [...quoteData.keywords].sort((a, b) => b.word.length - a.word.length);
+
+            sortedKeywords.forEach((kw, index) => {
+                const regex = new RegExp(`\\b(${kw.word})\\b`, 'gi');
+                processedHtml = processedHtml.replace(regex, (match) => {
+                    return `###${index}###${match}###END###`;
+                });
+            });
+
+            sortedKeywords.forEach((kw, index) => {
+                const regex = new RegExp(`###${index}###(.*?)###END###`, 'g');
+                // 加入 onclick 事件
+                processedHtml = processedHtml.replace(regex, `<span class="vocab-highlight" data-kw-index="${index}" onclick="handleWordClick(event)">$1</span>`);
+            });
+
+            return processedHtml;
+        }
+
         function showRandomQuote() {
             const quoteContainer = document.getElementById('dailyQuote');
             const randomIndex = Math.floor(Math.random() * quotes.length);
             currentQuoteData = quotes[randomIndex];
             
+            const interactiveEnQuote = processQuoteWithKeywords(currentQuoteData);
+
             quoteContainer.style.opacity = 0;
             setTimeout(() => {
                 quoteContainer.innerHTML = `
                     <p class="text-gray-800 font-medium text-xl mb-1">${currentQuoteData.zh}</p>
-                    <div class="flex items-center flex-wrap">
-                        <p class="text-gray-600 font-normal italic text-lg font-english mr-3">${currentQuoteData.en}</p>
-                        <button onclick="speakQuote()" class="text-yellow-600 hover:text-yellow-800 speak-btn focus:outline-none" title="朗讀英文">
-                            <i class="fas fa-volume-up text-xl"></i>
-                        </button>
+                    <div class="relative">
+                        <p class="text-gray-600 font-normal italic text-lg font-english mr-3 leading-loose" id="enQuoteText">
+                            ${interactiveEnQuote}
+                            <button onclick="speakQuote()" class="inline-block ml-2 text-yellow-600 hover:text-yellow-800 speak-btn focus:outline-none align-middle" title="朗讀整句">
+                                <i class="fas fa-volume-up text-xl"></i>
+                            </button>
+                        </p>
                     </div>
                 `;
                 quoteContainer.style.opacity = 1;
+                attachKeywordEvents();
             }, 300);
         }
 
-        // 朗讀功能 (支援語速調整)
+        function attachKeywordEvents() {
+            const highlights = document.querySelectorAll('.vocab-highlight');
+            highlights.forEach(el => {
+                // 桌面版保留 Hover 體驗，但如果已有 Click 開啟則不重複觸發
+                el.addEventListener('mouseenter', (e) => {
+                    // 只有在非觸控裝置上才觸發 Hover (簡單判斷: 是否有 touch 支援，或只單純依賴 hover CSS)
+                    // 為了最穩定的體驗，這裡同時支援 hover 與 click，但 click 優先級較高
+                    showTooltip(e.target);
+                });
+            });
+        }
+
+        // 點擊事件處理 (支援手機)
+        function handleWordClick(e) {
+            e.stopPropagation(); // 阻止冒泡到 document click
+            showTooltip(e.target);
+        }
+
+        function showTooltip(targetElement) {
+            const index = targetElement.getAttribute('data-kw-index');
+            const keywordData = currentQuoteData.keywords[index];
+            if (!keywordData) return;
+
+            // Highlight 樣式
+            document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active'));
+            targetElement.classList.add('active');
+
+            // 1. 播放發音
+            playWordAudio(keywordData.word);
+
+            // 2. 填充內容
+            ttWord.textContent = keywordData.word;
+            ttPos.textContent = keywordData.pos;
+            ttDefZh.textContent = keywordData.zh;
+            ttDefEn.textContent = keywordData.en;
+            ttExEn.textContent = `"${keywordData.ex_en}"`;
+            ttExZh.textContent = keywordData.ex_zh;
+
+            // 3. 定位計算 (Fixed Positioning)
+            const rect = targetElement.getBoundingClientRect(); // 取得相對於視窗的座標
+            const tooltipHeight = tooltip.offsetHeight || 200;
+            const tooltipWidth = tooltip.offsetWidth || 300;
+
+            // 預設顯示在上方
+            let top = rect.top - tooltipHeight - 12; 
+            let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+
+            // 處理箭頭
+            tooltipArrow.className = 'tooltip-arrow bottom'; // 預設箭頭在下方
+
+            // 邊界檢查：上方
+            if (top < 10) {
+                // 改顯示在下方
+                top = rect.bottom + 12;
+                tooltipArrow.className = 'tooltip-arrow top';
+            }
+
+            // 邊界檢查：左右
+            if (left < 10) left = 10;
+            if (left + tooltipWidth > window.innerWidth - 10) {
+                left = window.innerWidth - tooltipWidth - 10;
+            }
+
+            // 重新計算箭頭位置，讓它指著單字中間
+            // 箭頭相對於 Tooltip 的 left
+            let arrowLeft = rect.left + (rect.width / 2) - left;
+            // 限制箭頭不要超出 Tooltip 圓角
+            if (arrowLeft < 15) arrowLeft = 15;
+            if (arrowLeft > tooltipWidth - 15) arrowLeft = tooltipWidth - 15;
+            
+            tooltipArrow.style.left = `${arrowLeft}px`;
+            tooltipArrow.style.transform = 'translateX(-50%)';
+
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('show');
+            document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active'));
+        }
+
+        function playWordAudio(text) {
+            try {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                u.rate = 1.0; 
+                window.speechSynthesis.speak(u);
+            } catch (err) {
+                console.log("Audio playback failed:", err);
+            }
+        }
+
         function speakQuote() {
             if (!currentQuoteData) return;
-            
-            // 如果正在朗讀，先停止
             window.speechSynthesis.cancel();
-
-            // 建立語音物件
             const utterance = new SpeechSynthesisUtterance(currentQuoteData.en);
-            utterance.lang = 'en-US'; // 設定為美式英語
-            utterance.rate = parseFloat(rateInput.value); // 使用使用者設定的語速
-            
-            // 開始朗讀
+            utterance.lang = 'en-US';
+            utterance.rate = parseFloat(rateInput.value);
             window.speechSynthesis.speak(utterance);
         }
 
-        // 初始化顯示
         showRandomQuote();
 
-        // *** Google Apps Script 部署網址 ***
         const GAS_URL = "https://script.google.com/macros/s/AKfycbykiv2Rn3tRq1eaR8Yee5m8hfEwCN1naxrE8BAxoBNyDAPlizkT7S9l_RIUOTTqctycvQ/exec";
 
         const elements = {
@@ -435,16 +637,13 @@
             resultBody: document.getElementById('resultBody')
         };
 
-        // 頁面載入時執行：抓取學年度
         window.addEventListener('load', () => {
             fetchYears();
         });
 
-        // 控制密碼顯示/隱藏
         elements.toggleIdVisibility.addEventListener('click', () => {
             const input = elements.idLast4;
             const icon = elements.toggleIdVisibility.querySelector('i');
-            
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -456,59 +655,41 @@
             }
         });
 
-        // 核心 API 呼叫函式
         async function callAPI(payload) {
             const response = await fetch(GAS_URL, {
                 method: 'POST',
                 redirect: 'follow', 
                 referrerPolicy: 'no-referrer', 
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8", 
-                },
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤: ${response.status}`);
-            }
-            
+            if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
             const text = await response.text();
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                console.error("Non-JSON response:", text);
-                throw new Error("伺服器回應格式錯誤，可能發生內部錯誤或連線被阻擋。");
-            }
+            try { return JSON.parse(text); } 
+            catch (e) { console.error("Non-JSON response:", text); throw new Error("伺服器回應格式錯誤"); }
         }
 
-        // 1. 取得學年度列表 (Action: getYears)
         async function fetchYears() {
             try {
                 const json = await callAPI({ action: "getYears" });
-
                 if (json.status === "success") {
                     const years = json.data;
                     elements.yearSelect.innerHTML = '<option value="" disabled selected>請選擇學年度</option>';
-                    if (years.length === 0) {
-                        elements.yearSelect.innerHTML += '<option value="" disabled>無資料</option>';
-                    }
+                    if (years.length === 0) elements.yearSelect.innerHTML += '<option value="" disabled>無資料</option>';
                     years.forEach(year => {
                         const option = document.createElement('option');
                         option.value = year;
                         option.textContent = year;
                         elements.yearSelect.appendChild(option);
                     });
-                } else {
-                    showMessage("無法載入學年度: " + json.message, "error");
-                }
+                } else { showMessage("無法載入學年度: " + json.message, "error"); }
             } catch (error) {
                 console.error("Fetch Years Error:", error);
                 elements.yearSelect.innerHTML = '<option value="" disabled selected>載入失敗</option>';
-                showMessage("無法連線。若圖片未顯示或下拉選單空白，請確認：1.Drive 檔案是否公開 2.使用 GitHub Pages 測試。", "error");
+                showMessage("無法連線，請確認網路或 Google Sheet 權限。", "error");
             }
         }
 
-        // 2. 搜尋按鈕事件 (Action: search)
         elements.searchBtn.addEventListener('click', async () => {
             const studentId = elements.studentId.value.trim();
             const idLast4 = elements.idLast4.value.trim();
@@ -516,130 +697,74 @@
             const semester = elements.semesterSelect.value;
             const exam = elements.examSelect.value;
 
-            if (!studentId || !idLast4) {
-                showMessage("請輸入「學號」與「身分證後4碼」！", "warning");
-                return;
-            }
-            if (!year) {
-                showMessage("請選擇「學年度」！", "warning");
-                return;
-            }
+            if (!studentId || !idLast4) { showMessage("請輸入「學號」與「身分證後4碼」！", "warning"); return; }
+            if (!year) { showMessage("請選擇「學年度」！", "warning"); return; }
 
-            // 更新小語
             showRandomQuote();
-            
             setLoadingState(true);
 
             try {
-                const payload = {
-                    action: "search",
-                    studentId: studentId,
-                    idLast4: idLast4,
-                    year: year,
-                    semester: semester,
-                    exam: exam
-                };
-
+                const payload = { action: "search", studentId, idLast4, year, semester, exam };
                 const json = await callAPI(payload);
-
-                if (json.status === "success") {
-                    renderTable(json.data);
-                } else {
-                    showMessage("查詢失敗: " + json.message, "error");
-                    elements.resultArea.classList.add('hidden');
-                }
-
+                if (json.status === "success") { renderTable(json.data); } 
+                else { showMessage("查詢失敗: " + json.message, "error"); elements.resultArea.classList.add('hidden'); }
             } catch (error) {
                 console.error("Search Error:", error);
                 showMessage("連線發生錯誤，請檢查網路或稍後再試。", "error");
-            } finally {
-                setLoadingState(false);
-            }
+            } finally { setLoadingState(false); }
         });
 
-        // 3. 清除按鈕事件
         elements.clearBtn.addEventListener('click', () => {
             elements.studentId.value = '';
             elements.idLast4.value = '';
             elements.idLast4.type = 'password';
             const icon = elements.toggleIdVisibility.querySelector('i');
-            if(icon) {
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-
+            if(icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
             elements.yearSelect.selectedIndex = 0; 
             elements.semesterSelect.value = '';
             elements.examSelect.value = '';
-            
             elements.resultArea.classList.add('hidden');
             elements.messageArea.classList.add('hidden');
-            
-            // 更新小語
             showRandomQuote();
         });
 
-        // 輔助：渲染表格
         function renderTable(data) {
             elements.resultBody.innerHTML = '';
-            
             if (data.length === 0) {
                 showMessage("查無資料！請確認輸入資訊或篩選條件是否正確。", "warning");
                 elements.resultArea.classList.add('hidden');
                 return;
             }
-
             elements.messageArea.classList.add('hidden');
             elements.resultArea.classList.remove('hidden');
             
             data.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim";
-                // 設置動畫延遲
                 tr.style.animationDelay = `${index * 0.1}s`;
-                
-                const fields = [
-                    "學年度", "學期", "段考", "班級", "座號", "姓名", 
-                    "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", 
-                    "加權平均", "考科班排", "考科校排"
-                ];
-
+                const fields = ["學年度", "學期", "段考", "班級", "座號", "姓名", "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", "加權平均", "考科班排", "考科校排"];
                 fields.forEach(field => {
                     const td = document.createElement('td');
-                    // 內容字體 (響應式大小)
                     td.className = "py-4 px-6 whitespace-nowrap";
+                    if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) td.classList.add("text-left", "font-medium");
+                    else td.classList.add("text-center");
                     
-                    if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) {
-                        td.classList.add("text-left", "font-medium");
-                    } else {
-                        td.classList.add("text-center");
-                    }
-                    
-                    if (field === "加權平均") {
-                        td.classList.add("font-extrabold", "text-red-600", "bg-red-50");
-                    } else if (["考科班排", "考科校排"].includes(field)) {
-                        td.classList.add("text-blue-600");
-                    }
+                    if (field === "加權平均") td.classList.add("font-extrabold", "text-red-600", "bg-red-50");
+                    else if (["考科班排", "考科校排"].includes(field)) td.classList.add("text-blue-600");
 
                     td.textContent = row[field] || "";
                     tr.appendChild(td);
                 });
-
                 elements.resultBody.appendChild(tr);
             });
-            
             elements.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function showMessage(msg, type) {
             elements.messageArea.textContent = msg;
             elements.messageArea.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-orange-100', 'text-orange-700');
-            
-            if (type === "error") {
-                elements.messageArea.classList.add('bg-red-100', 'text-red-700');
-            } else { // warning
-                elements.messageArea.classList.add('bg-orange-100', 'text-orange-800');
-            }
+            if (type === "error") elements.messageArea.classList.add('bg-red-100', 'text-red-700');
+            else elements.messageArea.classList.add('bg-orange-100', 'text-orange-800');
         }
 
         function setLoadingState(isLoading) {
