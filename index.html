@@ -84,14 +84,14 @@
         /* 單字互動特效 */
         .vocab-highlight {
             border-bottom: 2px dashed #d97706;
-            cursor: pointer; /* 改為 pointer 提示可點擊 */
+            cursor: pointer; 
             color: #b45309;
             font-weight: 600;
             position: relative;
             transition: all 0.2s ease;
             display: inline-block;
-            user-select: none; /* 防止手機長按選取 */
-            -webkit-tap-highlight-color: rgba(253, 230, 138, 0.5); /* 手機點擊高亮色 */
+            user-select: none; 
+            -webkit-tap-highlight-color: rgba(253, 230, 138, 0.5);
         }
         .vocab-highlight:hover, .vocab-highlight.active {
             background-color: #fef3c7;
@@ -104,9 +104,9 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.2s, visibility 0.2s;
-            position: fixed; /* 改為 Fixed，最穩定的定位方式 */
-            z-index: 10000; /* 確保最上層 */
-            pointer-events: none; /* 讓滑鼠穿透，避免閃爍 */
+            position: fixed; 
+            z-index: 10000; 
+            pointer-events: none; 
         }
         #vocabTooltip.show {
             opacity: 1;
@@ -123,17 +123,54 @@
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
         }
-        /* 箭頭在下方 (卡片在上方時) */
         .tooltip-arrow.bottom {
             bottom: -8px;
             border-top: 8px solid white;
             filter: drop-shadow(0 2px 1px rgba(0,0,0,0.1));
         }
-        /* 箭頭在上方 (卡片在下方時) */
         .tooltip-arrow.top {
             top: -8px;
             border-bottom: 8px solid white;
             filter: drop-shadow(0 -2px 1px rgba(0,0,0,0.1));
+        }
+
+        /* 遊戲區塊樣式 */
+        .game-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #10b981; /* 綠色頂部 */
+            transition: all 0.3s ease;
+        }
+        .game-option-btn {
+            border: 2px solid #e5e7eb;
+            background-color: white;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+        .game-option-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+        }
+        .game-option-btn.correct {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+            font-weight: bold;
+            transform: scale(1.02);
+        }
+        .game-option-btn.wrong {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         input[type=range] { -webkit-appearance: none; background: transparent; }
@@ -209,6 +246,53 @@
                     <div id="dailyQuote" class="transition-opacity duration-300 mt-2">
                         <p class="text-gray-800 font-medium text-xl mb-1">載入中...</p>
                         <p class="text-gray-600 font-normal italic text-lg font-english">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 英文挑戰遊戲區塊 (新功能) -->
+        <div class="w-full px-4 md:px-6 mb-4">
+            <div class="game-container relative">
+                <!-- 標題與切換開關 -->
+                <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGame()">
+                    <h3 class="font-bold text-gray-800 text-lg flex items-center">
+                        <i class="fas fa-gamepad text-green-500 mr-2 text-2xl"></i>
+                        英文單字/字根挑戰
+                        <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Challenge</span>
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 transform transition-transform duration-300" id="gameToggleIcon"></i>
+                </div>
+                
+                <!-- 遊戲內容 (預設隱藏) -->
+                <div id="gameContent" class="hidden mt-4 border-t border-gray-100 pt-4">
+                    <!-- 題目區 -->
+                    <div class="text-center mb-6 relative">
+                        <div id="q-word" class="text-4xl md:text-5xl font-bold text-indigo-600 font-english mb-2 tracking-wide">Loading...</div>
+                        <div class="flex justify-center items-center gap-2 mb-2">
+                            <span id="q-type" class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wider">Word</span>
+                            <button onclick="playCurrentGameAudio()" class="text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="重聽發音">
+                                <i class="fas fa-volume-up text-xl"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-500 text-sm">請選擇正確的中文意思：</p>
+                    </div>
+                    
+                    <!-- 選項區 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-grid">
+                        <!-- JS 動態生成選項 -->
+                    </div>
+                    
+                    <!-- 底部資訊與控制 -->
+                    <div class="mt-6 flex justify-between items-center border-t border-gray-100 pt-4">
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500 mr-2">連續答對 Streak:</span>
+                            <span id="streak-count" class="font-bold text-orange-500 text-xl">0</span>
+                            <i class="fas fa-fire text-orange-500 ml-1 animate-pulse" id="streak-icon" style="display:none;"></i>
+                        </div>
+                        <button onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center">
+                            下一題 Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -444,6 +528,109 @@
             }
         ];
 
+        // --- 遊戲邏輯與資料 ---
+        const gameData = [
+            { question: "Bio-", type: "字根 Root", answer: "生命", options: ["生命", "地球", "星星", "水"], sound: "Bio" },
+            { question: "Geo-", type: "字根 Root", answer: "地球/土地", options: ["地球/土地", "空氣", "火焰", "人"], sound: "Geo" },
+            { question: "Phon-", type: "字根 Root", answer: "聲音", options: ["聲音", "光", "寫", "看"], sound: "Phone" },
+            { question: "Tele-", type: "字根 Root", answer: "遠距離", options: ["遠距離", "顯微", "環繞", "多重"], sound: "Tele" },
+            { question: "Re-", type: "字首 Prefix", answer: "再一次/回", options: ["再一次/回", "不", "之前", "反對"], sound: "Re" },
+            { question: "Un-", type: "字首 Prefix", answer: "不/相反", options: ["不/相反", "很多", "向外", "下面"], sound: "Un" },
+            { question: "-ology", type: "字尾 Suffix", answer: "...學/研究", options: ["...學/研究", "人", "能夠的", "動作"], sound: "ology" },
+            { question: "Aquarium", type: "單字 Word", answer: "水族館", options: ["水族館", "體育館", "圖書館", "博物館"], sound: "Aquarium" },
+            { question: "Education", type: "單字 Word", answer: "教育", options: ["教育", "經濟", "環境", "情緒"], sound: "Education" },
+            { question: "Success", type: "單字 Word", answer: "成功", options: ["成功", "失敗", "過程", "挑戰"], sound: "Success" }
+        ];
+
+        let currentQuestion = null;
+        let streak = 0;
+        let isGameOpen = false;
+
+        function toggleGame() {
+            const content = document.getElementById('gameContent');
+            const icon = document.getElementById('gameToggleIcon');
+            isGameOpen = !isGameOpen;
+            
+            if(isGameOpen) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+                if(!currentQuestion) nextQuestion();
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function nextQuestion() {
+            // 隨機選題
+            const randomIndex = Math.floor(Math.random() * gameData.length);
+            currentQuestion = gameData[randomIndex];
+            
+            // 更新 UI
+            document.getElementById('q-word').textContent = currentQuestion.question;
+            document.getElementById('q-type').textContent = currentQuestion.type;
+            
+            // 隨機排列選項
+            const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+            
+            const optionsHtml = shuffledOptions.map(opt => 
+                `<button onclick="checkAnswer(this, '${opt}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">
+                    ${opt}
+                </button>`
+            ).join('');
+            
+            document.getElementById('options-grid').innerHTML = optionsHtml;
+            
+            // 自動播放發音
+            playCurrentGameAudio();
+        }
+
+        function checkAnswer(btn, selected) {
+            const btns = document.querySelectorAll('.game-option-btn');
+            btns.forEach(b => b.disabled = true); // 鎖定所有按鈕
+
+            if(selected === currentQuestion.answer) {
+                // 答對
+                btn.classList.add('correct');
+                streak++;
+                document.getElementById('streak-count').textContent = streak;
+                if(streak > 0) document.getElementById('streak-icon').style.display = 'inline-block';
+                
+                // 特效音
+                playFeedbackAudio("Excellent!");
+            } else {
+                // 答錯
+                btn.classList.add('wrong');
+                streak = 0;
+                document.getElementById('streak-count').textContent = streak;
+                document.getElementById('streak-icon').style.display = 'none';
+                
+                // 顯示正確答案
+                btns.forEach(b => {
+                    if(b.textContent.trim() === currentQuestion.answer) b.classList.add('correct');
+                });
+                
+                playFeedbackAudio("Wrong answer. The answer is " + currentQuestion.answer); // 簡單提示
+            }
+        }
+
+        function playCurrentGameAudio() {
+            if(!currentQuestion) return;
+            playAudio(currentQuestion.sound || currentQuestion.question);
+        }
+
+        function playFeedbackAudio(text) {
+            // 避免與題目發音衝突，稍微延遲
+            setTimeout(() => {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US';
+                u.rate = 1.1;
+                window.speechSynthesis.speak(u);
+            }, 200);
+        }
+
+        // --- 現有程式碼 ---
+
         let currentQuoteData = null;
         const rateInput = document.getElementById('speechRate');
         const rateValue = document.getElementById('rateValue');
@@ -545,7 +732,7 @@
             targetElement.classList.add('active');
 
             // 1. 播放發音
-            playWordAudio(keywordData.word);
+            playAudio(keywordData.word);
 
             // 2. 填充內容
             ttWord.textContent = keywordData.word;
@@ -600,12 +787,14 @@
             document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active'));
         }
 
-        function playWordAudio(text) {
+        // 統一發音函式
+        function playAudio(text) {
             try {
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(text);
                 u.lang = 'en-US';
-                u.rate = 1.0; 
+                // 使用目前設定的語速，若無設定則預設 1.0 (單字與題目通常標準速度比較好，這裡用 rateInput 的值也行)
+                u.rate = parseFloat(rateInput.value) || 1.0; 
                 window.speechSynthesis.speak(u);
             } catch (err) {
                 console.log("Audio playback failed:", err);
@@ -614,11 +803,7 @@
 
         function speakQuote() {
             if (!currentQuoteData) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(currentQuoteData.en);
-            utterance.lang = 'en-US';
-            utterance.rate = parseFloat(rateInput.value);
-            window.speechSynthesis.speak(utterance);
+            playAudio(currentQuoteData.en);
         }
 
         showRandomQuote();
