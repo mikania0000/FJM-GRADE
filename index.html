@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學校成績查詢系統</title>
+    <!-- 引入 Tailwind CSS (快速排版) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome (圖示) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap'); /* 引入英文襯線字體 */
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            /* 背景漸層特效 */
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            background-attachment: fixed; /* 固定背景 */
+            min-height: 100vh;
+        }
+
+        /* 主容器進場動畫 */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 載入中動畫 */
+        .loading-spinner {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #2563eb; /* 藍色 */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 表格響應式優化 */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 表格列依序滑入特效 */
+        .table-row-anim {
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 響應式字體設定 
+           手機版：標題 20px / 內容 18px (適讀大小)
+           電腦版 (大於 768px)：標題 24px / 內容 22px (您指定的大字體)
+        */
+        .text-title-size {
+            font-size: 20px !important; 
+            line-height: 1.4;
+        }
+        .text-content-size {
+            font-size: 18px !important;
+            line-height: 1.4;
+        }
+
+        @media (min-width: 768px) {
+            .text-title-size {
+                font-size: 24px !important;
+            }
+            .text-content-size {
+                font-size: 22px !important;
+            }
+        }
+
+        /* 溫馨小語區塊特效 */
+        .quote-container {
+            background-color: #fff9c4; /* 淡黃色背景 */
+            border-left: 5px solid #fbc02d;
+            transition: all 0.3s ease;
+        }
+        .quote-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* 英文字體 */
+        .font-english {
+            font-family: 'Lora', serif;
+        }
+
+        /* 語音按鈕特效 */
+        .speak-btn {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .speak-btn:hover {
+            color: #d97706; /* 暗黃色 */
+            transform: scale(1.1);
+        }
+        .speak-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 拉桿樣式客製化 */
+        input[type=range] {
+            -webkit-appearance: none; /* 清除預設樣式 */
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        /* 拉桿軌道 */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #fde68a; /* 淺黃色軌道 */
+            border-radius: 3px;
+        }
+        /* 拉桿按鈕 */
+        input[type=range]::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #d97706; /* 深黃色按鈕 */
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -5px; /* 對齊軌道 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
+
+    <!-- 主容器 (加入 fade-in-up 動畫) -->
+    <div class="w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden fade-in-up bg-opacity-95">
+        
+        <!-- 標題圖片區 -->
+        <div class="w-full bg-blue-50 border-b border-gray-200 text-center relative group">
+            <img src="https://lh3.googleusercontent.com/d/1JmsYaXfbxskAaw9WXraX2gyi6a0W9--1" 
+                 alt="成績查詢系統標題" 
+                 referrerpolicy="no-referrer"
+                 class="max-w-full h-auto mx-auto object-contain"
+                 style="max-height: 200px; md:max-height: 250px;" 
+                 onerror="this.style.display='none'; document.getElementById('backup-title').style.display='block';">
+            
+            <!-- 圖片載入失敗時的備用文字 -->
+            <div id="backup-title" style="display:none;" class="py-10">
+                <h1 class="font-bold text-gray-800 tracking-wide text-title-size">學校成績查詢系統</h1>
+                <p class="text-sm text-gray-500 mt-2">(若圖片無法顯示，請確認 Google Drive 檔案權限是否設為「公開」)</p>
+            </div>
+        </div>
+
+        <!-- 溫馨小語區塊 (中英對照 + 語音 + 語速調整) -->
+        <div class="w-full px-4 md:px-6 py-4 bg-yellow-50">
+            <!-- 手機版改為垂直排列 (flex-col)，電腦版水平 (md:flex-row) -->
+            <div class="quote-container p-4 rounded-r-lg flex flex-col md:flex-row items-start md:items-center shadow-sm relative">
+                
+                <!-- 燈泡圖示 -->
+                <div class="mr-0 md:mr-5 text-yellow-600 mb-3 md:mb-0 self-start">
+                    <i class="fas fa-lightbulb text-3xl"></i>
+                </div>
+                
+                <div class="flex-1 w-full">
+                    <!-- 標題與語速控制列 -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 border-b border-yellow-200 pb-2">
+                        <h3 class="font-bold text-gray-800 text-lg mb-2 md:mb-0">每日溫馨小語 Quote of the Day</h3>
+                        
+                        <!-- 語速控制器 (新功能) -->
+                        <div class="flex items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-yellow-100">
+                            <span class="text-xs text-gray-500 mr-2 flex items-center">
+                                <i class="fas fa-tachometer-alt mr-1"></i> 語速
+                            </span>
+                            <!-- 拉桿：範圍 0.5 到 1.5，預設 0.9 -->
+                            <input type="range" id="speechRate" min="0.5" max="1.5" step="0.1" value="0.9" class="w-24 mr-2">
+                            <span id="rateValue" class="text-xs font-bold text-yellow-700 w-8 text-right">0.9x</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 內容顯示區 -->
+                    <div id="dailyQuote" class="transition-opacity duration-300 mt-2">
+                        <p class="text-gray-800 font-medium text-xl mb-1">載入中...</p>
+                        <p class="text-gray-600 font-normal italic text-lg font-english">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查詢表單區 -->
+        <div class="p-4 md:p-6 lg:p-10">
+            <!-- 手機版間距調整為 gap-6 -->
+            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                
+                <!-- 1. 學號 -->
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId">
+                        <i class="fas fa-id-card text-blue-500 mr-2"></i>學號
+                    </label>
+                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" 
+                           id="studentId" type="text" placeholder="請輸入學號" required>
+                </div>
+
+                <!-- 2. 身分證後4碼 (含顯示/隱藏切換) -->
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4">
+                        <i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼
+                    </label>
+                    <div class="relative">
+                        <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" 
+                               id="idLast4" type="password" placeholder="後4碼" maxlength="6" required>
+                        <!-- 切換顯示按鈕 -->
+                        <button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110">
+                            <i class="fas fa-eye text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. 學年度 (動態載入) -->
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="yearSelect">
+                        <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>學年度
+                    </label>
+                    <div class="relative">
+                        <select id="yearSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md">
+                            <option value="" disabled selected>載入中...</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600">
+                            <i class="fas fa-chevron-down text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 學期 (選填) -->
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="semesterSelect">
+                        <i class="fas fa-clock text-blue-500 mr-2"></i>學期 (選填)
+                    </label>
+                    <div class="relative">
+                        <select id="semesterSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md">
+                            <option value="">全部</option>
+                            <option value="1">上學期 (1)</option>
+                            <option value="2">下學期 (2)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600">
+                            <i class="fas fa-chevron-down text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 段考 (選填) -->
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="examSelect">
+                        <i class="fas fa-file-alt text-blue-500 mr-2"></i>段考 (選填)
+                    </label>
+                    <div class="relative">
+                        <select id="examSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md">
+                            <option value="">全部</option>
+                            <option value="1">第一次段考 (1)</option>
+                            <option value="2">第二次段考 (2)</option>
+                            <option value="3">第三次段考 (3)</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600">
+                            <i class="fas fa-chevron-down text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 按鈕區 -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col sm:flex-row justify-center gap-4 md:gap-6 mt-6">
+                    <button type="button" id="searchBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center shadow-md text-title-size">
+                        <i class="fas fa-search mr-3"></i> 查詢
+                    </button>
+                    <button type="button" id="clearBtn" class="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-12 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center shadow-md text-title-size">
+                        <i class="fas fa-eraser mr-3"></i> 清除
+                    </button>
+                </div>
+            </form>
+            
+            <!-- 狀態訊息提示 -->
+            <div id="messageArea" class="mt-6 text-center hidden p-4 rounded-lg text-content-size font-bold"></div>
+            
+            <!-- 載入中動畫 -->
+            <div id="loading" class="hidden flex flex-col justify-center items-center mt-12 mb-8">
+                <div class="loading-spinner mb-4" style="width: 50px; height: 50px; border-width: 6px;"></div>
+                <span class="text-gray-600 font-medium animate-pulse text-title-size">正在從資料庫查詢中...</span>
+            </div>
+        </div>
+
+        <!-- 結果顯示區 -->
+        <div id="resultArea" class="hidden border-t-4 border-blue-600 bg-gray-50 transition-all duration-500">
+            <div class="p-4 md:p-6">
+                <h2 class="font-bold text-gray-800 mb-6 border-l-8 border-blue-500 pl-4 text-title-size">查詢結果</h2>
+                <div class="table-container bg-white rounded-lg shadow-sm border border-gray-200">
+                    <table class="min-w-full leading-normal">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-800 uppercase font-bold tracking-wider text-title-size">
+                                <!-- 固定欄位 -->
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學年度</th>
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學期</th>
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">段考</th>
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">班級</th>
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">座號</th>
+                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">姓名</th>
+                                <!-- 成績欄位 (置中) -->
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">國語</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">英文</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">數學</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">歷史</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地理</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">公民</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">自然</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地科</th>
+                                <!-- 統計欄位 -->
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 text-red-600 font-extrabold bg-red-50 whitespace-nowrap">加權平均</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科班排</th>
+                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科校排</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultBody" class="text-gray-700 text-content-size">
+                            <!-- JS 將自動插入資料列 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 頁尾 -->
+        <div class="bg-gray-100 border-t border-gray-200 py-6 text-center text-gray-500 text-content-size px-4">
+            &copy; <span id="currentYear"></span> 學校成績查詢系統 | 
+            <span class="text-blue-500 italic font-english block md:inline mt-2 md:mt-0">Believe in yourself.</span>
+        </div>
+    </div>
+
+    <!-- JavaScript 核心邏輯 -->
+    <script>
+        // 設定年份
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // 溫馨小語資料庫 (中英對照)
+        const quotes = [
+            { zh: "每一次的努力，都是未來的養分。", en: "Every effort is a nutrient for the future." },
+            { zh: "成績只是一個數字，重要的是你學到了什麼。", en: "Grades are just numbers; what matters is what you learn." },
+            { zh: "相信自己，你比想像中更強大。", en: "Believe in yourself; you are stronger than you think." },
+            { zh: "失敗不是終點，而是成功的墊腳石。", en: "Failure is not the end, but a stepping stone to success." },
+            { zh: "今天的努力，是為了遇見更好的自己。", en: "Today's effort is to meet a better version of yourself." },
+            { zh: "保持好奇心，世界將為你打開大門。", en: "Stay curious, and the world will open its doors for you." },
+            { zh: "不要害怕犯錯，那是學習的必經之路。", en: "Don't be afraid of making mistakes; they are part of the learning journey." },
+            { zh: "堅持下去，最美的風景在頂峰。", en: "Persevere, for the most beautiful view is at the summit." },
+            { zh: "學習是為了讓自己有更多選擇的權利。", en: "Learning gives you the power to have more choices." }
+        ];
+
+        let currentQuoteData = null; // 用來儲存當前小語，供朗讀使用
+
+        // 語速控制變數
+        const rateInput = document.getElementById('speechRate');
+        const rateValue = document.getElementById('rateValue');
+
+        // 監聽語速改變，即時更新顯示數值
+        rateInput.addEventListener('input', (e) => {
+            rateValue.textContent = e.target.value + 'x';
+        });
+
+        // 隨機顯示小語
+        function showRandomQuote() {
+            const quoteContainer = document.getElementById('dailyQuote');
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            currentQuoteData = quotes[randomIndex];
+            
+            quoteContainer.style.opacity = 0;
+            setTimeout(() => {
+                quoteContainer.innerHTML = `
+                    <p class="text-gray-800 font-medium text-xl mb-1">${currentQuoteData.zh}</p>
+                    <div class="flex items-center flex-wrap">
+                        <p class="text-gray-600 font-normal italic text-lg font-english mr-3">${currentQuoteData.en}</p>
+                        <button onclick="speakQuote()" class="text-yellow-600 hover:text-yellow-800 speak-btn focus:outline-none" title="朗讀英文">
+                            <i class="fas fa-volume-up text-xl"></i>
+                        </button>
+                    </div>
+                `;
+                quoteContainer.style.opacity = 1;
+            }, 300);
+        }
+
+        // 朗讀功能 (支援語速調整)
+        function speakQuote() {
+            if (!currentQuoteData) return;
+            
+            // 如果正在朗讀，先停止
+            window.speechSynthesis.cancel();
+
+            // 建立語音物件
+            const utterance = new SpeechSynthesisUtterance(currentQuoteData.en);
+            utterance.lang = 'en-US'; // 設定為美式英語
+            utterance.rate = parseFloat(rateInput.value); // 使用使用者設定的語速
+            
+            // 開始朗讀
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 初始化顯示
+        showRandomQuote();
+
+        // *** Google Apps Script 部署網址 ***
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbykiv2Rn3tRq1eaR8Yee5m8hfEwCN1naxrE8BAxoBNyDAPlizkT7S9l_RIUOTTqctycvQ/exec";
+
+        const elements = {
+            studentId: document.getElementById('studentId'),
+            idLast4: document.getElementById('idLast4'),
+            toggleIdVisibility: document.getElementById('toggleIdVisibility'),
+            yearSelect: document.getElementById('yearSelect'),
+            semesterSelect: document.getElementById('semesterSelect'),
+            examSelect: document.getElementById('examSelect'),
+            searchBtn: document.getElementById('searchBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            loading: document.getElementById('loading'),
+            messageArea: document.getElementById('messageArea'),
+            resultArea: document.getElementById('resultArea'),
+            resultBody: document.getElementById('resultBody')
+        };
+
+        // 頁面載入時執行：抓取學年度
+        window.addEventListener('load', () => {
+            fetchYears();
+        });
+
+        // 控制密碼顯示/隱藏
+        elements.toggleIdVisibility.addEventListener('click', () => {
+            const input = elements.idLast4;
+            const icon = elements.toggleIdVisibility.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // 核心 API 呼叫函式
+        async function callAPI(payload) {
+            const response = await fetch(GAS_URL, {
+                method: 'POST',
+                redirect: 'follow', 
+                referrerPolicy: 'no-referrer', 
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8", 
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤: ${response.status}`);
+            }
+            
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error("Non-JSON response:", text);
+                throw new Error("伺服器回應格式錯誤，可能發生內部錯誤或連線被阻擋。");
+            }
+        }
+
+        // 1. 取得學年度列表 (Action: getYears)
+        async function fetchYears() {
+            try {
+                const json = await callAPI({ action: "getYears" });
+
+                if (json.status === "success") {
+                    const years = json.data;
+                    elements.yearSelect.innerHTML = '<option value="" disabled selected>請選擇學年度</option>';
+                    if (years.length === 0) {
+                        elements.yearSelect.innerHTML += '<option value="" disabled>無資料</option>';
+                    }
+                    years.forEach(year => {
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;
+                        elements.yearSelect.appendChild(option);
+                    });
+                } else {
+                    showMessage("無法載入學年度: " + json.message, "error");
+                }
+            } catch (error) {
+                console.error("Fetch Years Error:", error);
+                elements.yearSelect.innerHTML = '<option value="" disabled selected>載入失敗</option>';
+                showMessage("無法連線。若圖片未顯示或下拉選單空白，請確認：1.Drive 檔案是否公開 2.使用 GitHub Pages 測試。", "error");
+            }
+        }
+
+        // 2. 搜尋按鈕事件 (Action: search)
+        elements.searchBtn.addEventListener('click', async () => {
+            const studentId = elements.studentId.value.trim();
+            const idLast4 = elements.idLast4.value.trim();
+            const year = elements.yearSelect.value;
+            const semester = elements.semesterSelect.value;
+            const exam = elements.examSelect.value;
+
+            if (!studentId || !idLast4) {
+                showMessage("請輸入「學號」與「身分證後4碼」！", "warning");
+                return;
+            }
+            if (!year) {
+                showMessage("請選擇「學年度」！", "warning");
+                return;
+            }
+
+            // 更新小語
+            showRandomQuote();
+            
+            setLoadingState(true);
+
+            try {
+                const payload = {
+                    action: "search",
+                    studentId: studentId,
+                    idLast4: idLast4,
+                    year: year,
+                    semester: semester,
+                    exam: exam
+                };
+
+                const json = await callAPI(payload);
+
+                if (json.status === "success") {
+                    renderTable(json.data);
+                } else {
+                    showMessage("查詢失敗: " + json.message, "error");
+                    elements.resultArea.classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error("Search Error:", error);
+                showMessage("連線發生錯誤，請檢查網路或稍後再試。", "error");
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        // 3. 清除按鈕事件
+        elements.clearBtn.addEventListener('click', () => {
+            elements.studentId.value = '';
+            elements.idLast4.value = '';
+            elements.idLast4.type = 'password';
+            const icon = elements.toggleIdVisibility.querySelector('i');
+            if(icon) {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+
+            elements.yearSelect.selectedIndex = 0; 
+            elements.semesterSelect.value = '';
+            elements.examSelect.value = '';
+            
+            elements.resultArea.classList.add('hidden');
+            elements.messageArea.classList.add('hidden');
+            
+            // 更新小語
+            showRandomQuote();
+        });
+
+        // 輔助：渲染表格
+        function renderTable(data) {
+            elements.resultBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                showMessage("查無資料！請確認輸入資訊或篩選條件是否正確。", "warning");
+                elements.resultArea.classList.add('hidden');
+                return;
+            }
+
+            elements.messageArea.classList.add('hidden');
+            elements.resultArea.classList.remove('hidden');
+            
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim";
+                // 設置動畫延遲
+                tr.style.animationDelay = `${index * 0.1}s`;
+                
+                const fields = [
+                    "學年度", "學期", "段考", "班級", "座號", "姓名", 
+                    "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", 
+                    "加權平均", "考科班排", "考科校排"
+                ];
+
+                fields.forEach(field => {
+                    const td = document.createElement('td');
+                    // 內容字體 (響應式大小)
+                    td.className = "py-4 px-6 whitespace-nowrap";
+                    
+                    if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) {
+                        td.classList.add("text-left", "font-medium");
+                    } else {
+                        td.classList.add("text-center");
+                    }
+                    
+                    if (field === "加權平均") {
+                        td.classList.add("font-extrabold", "text-red-600", "bg-red-50");
+                    } else if (["考科班排", "考科校排"].includes(field)) {
+                        td.classList.add("text-blue-600");
+                    }
+
+                    td.textContent = row[field] || "";
+                    tr.appendChild(td);
+                });
+
+                elements.resultBody.appendChild(tr);
+            });
+            
+            elements.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showMessage(msg, type) {
+            elements.messageArea.textContent = msg;
+            elements.messageArea.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-orange-100', 'text-orange-700');
+            
+            if (type === "error") {
+                elements.messageArea.classList.add('bg-red-100', 'text-red-700');
+            } else { // warning
+                elements.messageArea.classList.add('bg-orange-100', 'text-orange-800');
+            }
+        }
+
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                elements.loading.classList.remove('hidden');
+                elements.resultArea.classList.add('hidden');
+                elements.messageArea.classList.add('hidden');
+                elements.searchBtn.disabled = true;
+                elements.searchBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                elements.loading.classList.add('hidden');
+                elements.searchBtn.disabled = false;
+                elements.searchBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    </script>
+</body>
+</html>
