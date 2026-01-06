@@ -471,19 +471,22 @@
 
         function processQuoteWithKeywords(quoteData) {
             let processedHtml = quoteData.en;
-            const sortedKeywords = [...quoteData.keywords].sort((a, b) => b.word.length - a.word.length);
+            // 1. 加上原始索引並排序 (由長到短，避免部分匹配問題)
+            const sortedKeywords = quoteData.keywords
+                .map((kw, index) => ({ ...kw, originalIndex: index }))
+                .sort((a, b) => b.word.length - a.word.length);
 
-            sortedKeywords.forEach((kw, index) => {
+            // 2. 將單字替換為暫存標記 ###index###word###END###
+            sortedKeywords.forEach((kw) => {
                 const regex = new RegExp(`\\b(${kw.word})\\b`, 'gi');
                 processedHtml = processedHtml.replace(regex, (match) => {
-                    return `###${index}###${match}###END###`;
+                    return `###${kw.originalIndex}###${match}###END###`;
                 });
             });
 
-            sortedKeywords.forEach((kw, index) => {
-                const regex = new RegExp(`###${index}###(.*?)###END###`, 'g');
-                // 加入 onclick 事件
-                processedHtml = processedHtml.replace(regex, `<span class="vocab-highlight" data-kw-index="${index}" onclick="handleWordClick(event)">$1</span>`);
+            // 3. 將暫存標記替換為 HTML 標籤
+            processedHtml = processedHtml.replace(/###(\d+)###(.*?)###END###/g, (match, index, text) => {
+                return `<span class="vocab-highlight" data-kw-index="${index}" onclick="handleWordClick(event)">${text}</span>`;
             });
 
             return processedHtml;
