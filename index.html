@@ -155,10 +155,7 @@
             border-radius: 4px;
         }
         
-        /* ★ 關鍵特效：處理白底圖片 
-           使用 mix-blend-mode: multiply 讓白色背景變透明，
-           從而透出底下的閃卡背景，製造「印刷在閃卡上」的效果。
-        */
+        /* ★ 關鍵特效：處理白底圖片 */
         .poke-img-content {
             width: 100%;
             height: 100%;
@@ -256,7 +253,7 @@
         </div>
     </div>
 
-    <!-- 單字卡片 Tooltip (保持不變) -->
+    <!-- 單字卡片 Tooltip (更新: 加入例句發音按鈕) -->
     <div id="vocabTooltip" class="bg-white border border-gray-200 shadow-2xl rounded-lg p-4 max-w-xs w-full md:w-80 text-left">
         <div class="flex justify-between items-start mb-2">
             <div>
@@ -267,8 +264,12 @@
         </div>
         <div class="space-y-2">
             <p class="text-sm text-gray-800 border-l-2 border-blue-400 pl-2"><span id="tt-def-zh" class="font-bold"></span> <span id="tt-def-en" class="text-gray-500 text-xs block mt-0.5"></span></p>
-            <div class="bg-blue-50 p-2 rounded text-xs mt-2">
-                <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1"></p>
+            <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group">
+                <!-- 加入例句發音按鈕 -->
+                <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors" title="朗讀例句">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1 pr-5"></p>
                 <p id="tt-ex-zh" class="text-gray-600"></p>
             </div>
         </div>
@@ -477,10 +478,19 @@
         const ttDefEn = document.getElementById('tt-def-en');
         const ttExEn = document.getElementById('tt-ex-en');
         const ttExZh = document.getElementById('tt-ex-zh');
+        const btnReadEx = document.getElementById('btn-read-ex'); // ★新按鈕
 
         rateInput.addEventListener('input', (e) => { rateValue.textContent = e.target.value + 'x'; });
         document.addEventListener('click', (e) => {
             if (!tooltip.contains(e.target) && !e.target.classList.contains('vocab-highlight')) hideTooltip();
+        });
+
+        // ★ 新增：例句發音按鈕事件
+        btnReadEx.addEventListener('click', (e) => {
+            e.stopPropagation(); // 避免點擊按鈕關閉 tooltip
+            if(ttExEn.textContent) {
+                playAudio(ttExEn.textContent);
+            }
         });
 
         // 頁面載入時執行
@@ -570,20 +580,35 @@
             document.querySelectorAll('.vocab-highlight').forEach(el => el.addEventListener('mouseenter', (e) => showTooltip(e.target)));
         }
         function handleWordClick(e) { e.stopPropagation(); showTooltip(e.target); }
+        
         function showTooltip(targetElement) {
             const index = targetElement.getAttribute('data-kw-index');
             const keywordData = currentQuoteData.keywords[index];
             if (!keywordData) return;
+            
+            // Highlight active word
             document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active'));
             targetElement.classList.add('active');
+            
+            // ★ 自動發音單字
             playAudio(keywordData.word);
+            
+            // 填充內容
             ttWord.textContent = keywordData.word;
             ttPos.textContent = keywordData.pos || "單字";
             ttDefZh.textContent = keywordData.zh || "";
-            ttDefEn.textContent = keywordData.en || "";
-            ttExEn.textContent = keywordData.ex_en ? `"${keywordData.ex_en}"` : "";
+            ttDefEn.textContent = keywordData.en || ""; // 這邊如果沒資料會顯示單字本身
+            ttExEn.textContent = keywordData.ex_en || "";
             ttExZh.textContent = keywordData.ex_zh || "";
             
+            // 處理例句顯示邏輯
+            if (keywordData.ex_en && keywordData.ex_en !== "Example sentence not available.") {
+                btnReadEx.style.display = 'block';
+            } else {
+                btnReadEx.style.display = 'none'; // 沒例句時隱藏發音鈕
+            }
+
+            // 定位邏輯 (保持不變)
             const rect = targetElement.getBoundingClientRect();
             const tooltipHeight = tooltip.offsetHeight || 200;
             const tooltipWidth = tooltip.offsetWidth || 300;
