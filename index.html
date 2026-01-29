@@ -11,6 +11,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap');
         
         body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); background-attachment: fixed; min-height: 100vh; overflow-x: hidden; }
+        
+        /* --- 動畫與通用 --- */
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         .loading-spinner { border: 4px solid #e5e7eb; border-top: 4px solid #2563eb; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
@@ -22,7 +24,7 @@
         .text-content-size { font-size: 18px !important; line-height: 1.4; }
         @media (min-width: 768px) { .text-title-size { font-size: 24px !important; } .text-content-size { font-size: 22px !important; } }
         
-        /* 溫馨小語 & 互動樣式 */
+        /* --- 溫馨小語 & 互動 --- */
         .quote-container { background-color: #fff9c4; border-left: 5px solid #fbc02d; transition: all 0.3s ease; position: relative; }
         .quote-container:hover { transform: scale(1.01); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .font-english { font-family: 'Lora', serif; }
@@ -31,14 +33,14 @@
         .vocab-highlight { border-bottom: 2px dashed #d97706; cursor: pointer; color: #b45309; font-weight: 600; position: relative; transition: all 0.2s ease; display: inline-block; user-select: none; -webkit-tap-highlight-color: rgba(253, 230, 138, 0.5); }
         .vocab-highlight:hover, .vocab-highlight.active { background-color: #fef3c7; color: #92400e; transform: translateY(-2px); }
         
-        /* Tooltip */
+        /* --- Tooltip --- */
         #vocabTooltip { opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; position: fixed; z-index: 10000; pointer-events: none; }
         #vocabTooltip.show { opacity: 1; visibility: visible; }
         .tooltip-arrow { position: absolute; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; }
         .tooltip-arrow.bottom { bottom: -8px; border-top: 8px solid white; filter: drop-shadow(0 2px 1px rgba(0,0,0,0.1)); }
         .tooltip-arrow.top { top: -8px; border-bottom: 8px solid white; filter: drop-shadow(0 -2px 1px rgba(0,0,0,0.1)); }
 
-        /* 遊戲樣式 */
+        /* --- 遊戲區塊 --- */
         .game-container { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #10b981; transition: all 0.3s ease; }
         .game-option-btn { border: 2px solid #e5e7eb; background-color: white; transition: all 0.2s; font-size: 1.1rem; }
         .game-option-btn:hover:not(:disabled) { border-color: #3b82f6; background-color: #eff6ff; transform: translateY(-2px); }
@@ -50,23 +52,7 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #fde68a; border-radius: 3px; }
         input[type=range]::-webkit-slider-thumb { height: 16px; width: 16px; border-radius: 50%; background: #d97706; cursor: pointer; -webkit-appearance: none; margin-top: -5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
-        /* ================= 煙火特效 ================= */
-        .firework {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 0.5rem; aspect-ratio: 1; background: #0000; border-radius: 50%;
-            animation: firework 2s infinite; z-index: 20002; pointer-events: none;
-        }
-        @keyframes firework {
-            0% { transform: translate(-50%, -50%); width: 0.5rem; opacity: 1; box-shadow: 0 0 0 0px red; }
-            50% { width: 0.5rem; opacity: 1; }
-            100% { width: 45rem; opacity: 0; 
-                box-shadow: 0 0 0 0 transparent,
-                -15rem -20rem 0 -0.2rem #ff0000, 15rem -20rem 0 -0.2rem #ffff00, 15rem 20rem 0 -0.2rem #00ff00, -15rem 20rem 0 -0.2rem #0000ff,
-                -9rem -25rem 0 -0.2rem #ff00ff, 9rem -25rem 0 -0.2rem #00ffff, 9rem 25rem 0 -0.2rem #ffffff, -9rem 25rem 0 -0.2rem #ffa500;
-            }
-        }
-
-        /* ================= 3D 閃卡特效樣式 ================= */
+        /* --- 獎勵視窗 & 3D 卡片 --- */
         .reward-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 20000;
@@ -76,7 +62,6 @@
         }
         .reward-overlay.show { opacity: 1; visibility: visible; }
 
-        /* 卡片本體 */
         .poke-card {
             width: 300px; height: 440px; border-radius: 18px; position: relative;
             transform-style: preserve-3d; transition: transform 0.1s;
@@ -85,20 +70,20 @@
             background-size: cover;
         }
 
-        /* --- 傳說 (Legendary) 最炫 --- */
+        /* 傳說 (Legendary) - 特殊/傳說 */
         .poke-card.legendary {
             border-color: #ffd700;
             background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 50%, #1a1a1a 100%);
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 0, 0, 0.4);
         }
         .poke-card.legendary .poke-card-inner { background: rgba(255, 215, 0, 0.1); }
-        .poke-card.legendary::after { /* 彩虹流光 */
+        .poke-card.legendary::after {
             content: ""; position: absolute; inset: 0;
             background: linear-gradient(125deg, transparent 20%, rgba(255, 215, 0, 0.4) 30%, rgba(255, 0, 255, 0.4) 40%, rgba(0, 255, 255, 0.4) 50%, transparent 60%);
             mix-blend-mode: color-dodge; opacity: 0.8; pointer-events: none;
         }
 
-        /* --- 幻之 (Mythical) --- */
+        /* 幻之 (Mythical) */
         .poke-card.mythical {
             border-color: #d8b4fe;
             background: linear-gradient(135deg, #2e1065 0%, #7e22ce 50%, #2e1065 100%);
@@ -111,7 +96,7 @@
             mix-blend-mode: overlay; pointer-events: none;
         }
 
-        /* --- 一般 (Normal) --- */
+        /* 一般 (Normal) */
         .poke-card.normal {
             border-color: #94a3b8;
             background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 50%, #f1f5f9 100%);
@@ -124,9 +109,7 @@
             mix-blend-mode: soft-light; pointer-events: none;
         }
 
-        /* 內部結構 */
         .poke-card-inner { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 12px; position: relative; z-index: 2; }
-        
         .poke-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
         .card-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; color: white; background: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
@@ -141,10 +124,9 @@
 
         .poke-info { width: 100%; text-align: center; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .poke-name { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin-bottom: 2px; }
-        .poke-eng-name { font-size: 0.8rem; color: #64748b; font-family: 'Lora', serif; font-style: italic; margin-bottom: 5px; }
+        .poke-eng-name { font-size: 0.9rem; color: #64748b; font-family: 'Lora', serif; font-weight: bold; font-style: italic; margin-bottom: 5px; }
         .poke-stars { color: #f59e0b; font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 2px; }
         
-        /* 閃光遮罩 (根據滑鼠移動) */
         .glare {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 18px;
             background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%);
@@ -157,12 +139,15 @@
             box-shadow: 0 0 20px rgba(255,255,255,0.5); transition: all 0.2s; z-index: 20001;
         }
         .close-reward-btn:hover { transform: scale(1.05); background: #f8fafc; color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.8); }
+        
+        .sparkle {
+            position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 5px white; opacity: 0;
+            animation: sparkle-anim 1.5s linear infinite; z-index: 20;
+        }
+        @keyframes sparkle-anim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
     </style>
 </head>
 <body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
-
-    <!-- 煙火特效層 -->
-    <div id="fireworksLayer" class="fixed inset-0 pointer-events-none z-[20003] hidden"></div>
 
     <!-- 金卡獎勵視窗 -->
     <div id="rewardModal" class="reward-overlay">
@@ -170,11 +155,7 @@
             <h2 class="text-white text-3xl md:text-5xl font-bold mb-10 animate-bounce text-center drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
                 <i class="fas fa-crown text-yellow-300 mr-2"></i>CHALLENGE CLEAR!<i class="fas fa-crown text-yellow-300 ml-2"></i>
             </h2>
-            
-            <div id="cardWrapper" class="relative">
-                <!-- 卡片將由 JS 插入 -->
-            </div>
-
+            <div id="rewardCardContainer" class="relative"></div>
             <button class="close-reward-btn" onclick="closeReward()">
                 <i class="fas fa-check mr-2"></i> 收下卡片 (Claim)
             </button>
@@ -214,7 +195,7 @@
     <div class="w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden fade-in-up bg-opacity-95">
         <div class="w-full bg-blue-50 border-b border-gray-200 text-center relative group">
             <img src="https://lh3.googleusercontent.com/d/1JmsYaXfbxskAaw9WXraX2gyi6a0W9--1" alt="標題" referrerpolicy="no-referrer" class="max-w-full h-auto mx-auto object-contain" style="max-height: 200px; md:max-height: 250px;" onerror="this.style.display='none'; document.getElementById('backup-title').style.display='block';">
-            <div id="backup-title" style="display:none;" class="py-10"><h1 class="font-bold text-gray-800 tracking-wide text-title-size">鳳甲國中成績查詢系統</h1></div>
+            <div id="backup-title" style="display:none;" class="py-10"><h1 class="font-bold text-gray-800 tracking-wide text-title-size">鳳甲國中成績查詢系統</h1><p class="text-sm text-gray-500 mt-2">(Google Drive 圖片讀取失敗)</p></div>
         </div>
 
         <div class="w-full px-4 md:px-6 py-4 bg-yellow-50">
@@ -270,6 +251,8 @@
                         </div>
                         <div class="mt-6 flex justify-between items-center border-t border-gray-100 pt-4">
                             <div class="flex items-center"><span class="text-sm text-gray-500 mr-2">連續答對 Streak:</span><span id="streak-count" class="font-bold text-orange-500 text-xl">0</span><span class="text-gray-300 mx-1">/</span><span class="text-gray-400 text-sm">10</span><i class="fas fa-fire text-orange-500 ml-1 animate-pulse" id="streak-icon" style="display:none;"></i></div>
+                            <!-- 最後一題提示 -->
+                            <div id="lastOneHint" class="hidden text-red-500 font-bold animate-pulse text-lg">最後一題！加油！(One more!)</div>
                             <button onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center">下一題 Next <i class="fas fa-arrow-right ml-2"></i></button>
                         </div>
                     </div>
@@ -425,6 +408,8 @@
             document.getElementById('q-word').textContent=currentQuestion.question;
             document.getElementById('q-type').textContent=currentQuestion.type;
             document.getElementById('gameAnalysis').classList.add('hidden');
+            // Hide last one hint
+            document.getElementById('lastOneHint').classList.add('hidden');
             const opts=[...currentQuestion.options].sort(()=>Math.random()-0.5);
             document.getElementById('options-grid').innerHTML=opts.map(o=>`<button onclick="checkAnswer(this, '${o.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${o}</button>`).join('');
             playAudio(currentQuestion.sound||currentQuestion.question);
@@ -437,121 +422,126 @@
                 btn.classList.add('correct'); streak++;
                 document.getElementById('streak-count').textContent=streak;
                 if(streak>0)document.getElementById('streak-icon').style.display='inline-block';
-                playFeedbackAudio("Excellent!");
-                if(streak===TARGET_STREAK)showReward();
+                
+                // ★★★ 自動跳下一題 & 最後一題提醒 ★★★
+                if(streak === TARGET_STREAK - 1) {
+                    playFeedbackAudio("Excellent! One more to go!");
+                    const hint = document.getElementById('lastOneHint');
+                    hint.classList.remove('hidden');
+                    hint.textContent = "最後一題！加油！(Last one!)";
+                    setTimeout(nextQuestion, 2000); 
+                } else if(streak === TARGET_STREAK) {
+                    showReward(); // 直接顯示卡片 (不放煙火)
+                } else {
+                    playFeedbackAudio("Excellent!");
+                    setTimeout(nextQuestion, 1000); // 1秒後下一題
+                }
+
             }else{
                 btn.classList.add('wrong'); streak=0;
                 document.getElementById('streak-count').textContent=streak;
                 document.getElementById('streak-icon').style.display='none';
+                document.getElementById('lastOneHint').classList.add('hidden');
                 document.querySelectorAll('.game-option-btn').forEach(b=>{if(b.textContent.trim()===currentQuestion.answer)b.classList.add('correct');});
                 playFeedbackAudio("Wrong answer.");
             }
         }
 
         function showReward(){
-            // 觸發煙火
-            const fwLayer = document.getElementById('fireworksLayer');
-            fwLayer.innerHTML = '';
-            fwLayer.classList.remove('hidden');
-            for(let i=0; i<15; i++) {
-                const fw = document.createElement('div');
-                fw.classList.add('firework');
-                fw.style.top = Math.random()*80 + 10 + '%';
-                fw.style.left = Math.random()*80 + 10 + '%';
-                fw.style.animationDelay = Math.random()*1 + 's';
-                fwLayer.appendChild(fw);
-            }
+            // 若無寶可夢資料，顯示預設卡 (Master Ball)
+            const card = pokemonData.length ? pokemonData[Math.floor(Math.random()*pokemonData.length)] : {"名稱":"Master","圖片":"","星等":5,"特殊":"傳說","英文名稱":"Master Ball"};
+            const star = parseInt(card["星等"])||3;
+            const type = card["屬性"]||"";
+            const special = card["特殊"]||"一般";
+            const engName = card["英文名稱"] || "";
 
-            playFeedbackAudio("Mission Complete!");
+            // 分級樣式：傳說/特殊 -> 金，幻之 -> 銀 (這裡用 mythical 樣式)，其他 -> 銅
+            let cls="normal", hp="60 HP";
+            if(special==="傳說" || special==="特殊") { cls="legendary"; hp="150 HP"; }
+            else if(special==="幻之") { cls="mythical"; hp="120 HP"; }
+            
+            const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content" alt="${card["名稱"]}">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
+            
+            let starsHtml = '';
+            for(let i=0; i<star; i++) starsHtml += '<i class="fas fa-star"></i>';
 
-            // 延遲 1.5 秒後顯示卡片
-            setTimeout(() => {
-                fwLayer.classList.add('hidden'); // 隱藏煙火層
-                
-                const card = pokemonData.length ? pokemonData[Math.floor(Math.random()*pokemonData.length)] : {"名稱":"Master","圖片":"","星等":5,"特殊":"傳說","英文名稱":"Master Ball"};
-                const star = parseInt(card["星等"])||3;
-                const type = card["屬性"]||"";
-                const special = card["特殊"]||"一般";
-                const engName = card["英文名稱"] || "";
-
-                // 分級樣式
-                let cls="normal", hp="60 HP";
-                if(special==="傳說" || special==="特殊") { cls="legendary"; hp="150 HP"; }
-                else if(special==="幻之") { cls="mythical"; hp="120 HP"; }
-                
-                const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content" alt="${card["名稱"]}">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
-                
-                // 產生星星
-                let starsHtml = '';
-                for(let i=0; i<star; i++) starsHtml += '<i class="fas fa-star"></i>';
-
-                document.getElementById('rewardCardContainer').innerHTML = `
-                <div id="activePokeCard" class="poke-card ${cls}">
-                    <div class="poke-card-inner">
-                        <div class="poke-header">
-                            <div class="flex items-center">
-                                ${type ? `<span class="card-tag mr-2">${type}</span>` : ''}
-                                <span class="text-sm opacity-80">${special}</span>
-                            </div>
-                            <span class="text-red-600 font-bold font-mono">${hp}</span>
+            document.getElementById('rewardCardContainer').innerHTML = `
+            <div id="activePokeCard" class="poke-card ${cls}">
+                <div class="poke-card-inner">
+                    <div class="poke-header">
+                        <div class="flex items-center">
+                            ${type ? `<span class="card-tag mr-2">${type}</span>` : ''}
+                            <span class="text-sm opacity-80">${special}</span>
                         </div>
-                        <div class="poke-img-frame">
-                            <div class="glare"></div>
-                            ${img}
-                        </div>
-                        <div class="poke-info">
-                            <div class="poke-name">${card["名稱"]}</div>
-                            <div class="poke-eng-name">${engName}</div>
-                            <div class="poke-stars">${starsHtml}</div>
-                        </div>
+                        <span class="text-red-600 font-bold font-mono">${hp}</span>
                     </div>
-                </div>`;
+                    <div class="poke-img-frame">
+                        <div class="glare"></div>
+                        ${img}
+                    </div>
+                    <div class="poke-info">
+                        <div class="poke-name">${card["名稱"]}</div>
+                        <div class="poke-eng-name">${engName}</div>
+                        <div class="poke-stars">${starsHtml}</div>
+                    </div>
+                </div>
+            </div>`;
 
-                document.getElementById('rewardModal').classList.add('show');
-                
-                // 語音報讀英文名稱 (需偵測是否為中文環境)
-                let voiceMsg = `Congratulations! You got ${engName || 'a Pokemon'}!`;
-                if(card["名稱"] && card["名稱"].indexOf("超夢") !== -1) {
-                    voiceMsg = "太神啦！恭喜你抽中了超夢！"; // 彩蛋
-                }
-                playFeedbackAudio(voiceMsg);
+            document.getElementById('rewardModal').classList.add('show');
+            
+            // 語音報讀 (超夢彩蛋 + 英文名稱)
+            let voiceMsg = `Congratulations! You got ${engName || 'a Pokemon'}!`;
+            if(card["名稱"] && card["名稱"].indexOf("超夢") !== -1) {
+                voiceMsg = "太神啦！恭喜你抽中了超夢！";
+            }
+            playFeedbackAudio(voiceMsg);
 
-                // 3D Tilt 互動
-                const activeCard = document.getElementById('activePokeCard');
+            // 3D 閃卡特效 (Tilt Effect)
+            const activeCard = document.getElementById('activePokeCard');
+            if(activeCard) {
                 activeCard.addEventListener('mousemove', (e) => {
                     const rect = activeCard.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    const rotateX = ((y - centerY) / centerY) * -15; // 倒轉 Y 軸
+                    const rotateX = ((y - centerY) / centerY) * -15; 
                     const rotateY = ((x - centerX) / centerX) * 15;
-
                     activeCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    
-                    // 調整反光位置
                     const glare = activeCard.querySelector('.glare');
-                    glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.8) 0%, transparent 50%)`;
-                    glare.style.opacity = 1;
+                    if(glare) {
+                        glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.8) 0%, transparent 50%)`;
+                        glare.style.opacity = 1;
+                    }
                 });
-
                 activeCard.addEventListener('mouseleave', () => {
                     activeCard.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
-                    activeCard.querySelector('.glare').style.opacity = 0;
+                    const glare = activeCard.querySelector('.glare');
+                    if(glare) glare.style.opacity = 0;
                 });
-
-            }, 1500);
+            }
         }
 
         function closeReward(){
             document.getElementById('rewardModal').classList.remove('show');
             streak=0; document.getElementById('streak-count').textContent=0; document.getElementById('streak-icon').style.display='none';
+            document.getElementById('lastOneHint').classList.add('hidden');
             nextQuestion();
         }
 
         function playAudio(t){window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=parseFloat(rateInput.value)||1.0; window.speechSynthesis.speak(u);}
         function speakQuote(){if(currentQuoteData)playAudio(currentQuoteData.en);}
-        function playFeedbackAudio(t){setTimeout(()=>{const u=new SpeechSynthesisUtterance(t); u.lang=/[\u4e00-\u9fa5]/.test(t)?'zh-TW':'en-US'; u.rate=1.1; window.speechSynthesis.speak(u);},200);}
+        
+        // 支援中文的語音播放
+        function playFeedbackAudio(t){
+            setTimeout(()=>{
+                const u=new SpeechSynthesisUtterance(t); 
+                u.lang=/[\u4e00-\u9fa5]/.test(t)?'zh-TW':'en-US'; 
+                u.rate=1.1; 
+                window.speechSynthesis.speak(u);
+            },200);
+        }
+        
         function playCurrentGameAudio(){if(currentQuestion)playAudio(currentQuestion.sound||currentQuestion.question);}
         
         async function fetchYears(){try{const json=await callAPI({action:"getYears"});const sel=document.getElementById('yearSelect');if(json.status==="success"){sel.innerHTML='<option value="" disabled selected>請選擇學年度</option>';if(json.data.length===0)sel.innerHTML+='<option value="" disabled>無資料</option>';json.data.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;sel.appendChild(o);});}}catch(e){console.error(e);}}
