@@ -143,34 +143,45 @@
             <h2 class="text-white text-3xl md:text-5xl font-bold mb-8 animate-bounce text-center" style="text-shadow: 0 0 10px gold;">
                 <i class="fas fa-crown text-yellow-300"></i> CHALLENGE CLEAR!
             </h2>
-            <div id="rewardCardContainer" onclick="playAudio('Pikachu!')">
-                <!-- JS 動態插入 .poke-card -->
-            </div>
+            <div id="rewardCardContainer" onclick="playAudio('Pikachu!')"></div>
             <button class="close-reward-btn" onclick="closeReward()">
                 <i class="fas fa-check mr-2"></i> 領取獎勵 (Claim)
             </button>
-            <p id="rewardMsg" class="text-white mt-4 text-sm opacity-80">Streak 10 達成！</p>
+            <p class="text-white mt-4 text-sm opacity-80">Streak 10 達成！</p>
         </div>
     </div>
 
-    <!-- 單字卡片 Tooltip (含例句發音按鈕) -->
+    <!-- 單字 Tooltip (更新結構以配合 JS) -->
     <div id="vocabTooltip" class="bg-white border border-gray-200 shadow-2xl rounded-lg p-4 max-w-xs w-full md:w-80 text-left">
-        <div class="flex justify-between items-start mb-2">
+        <div class="flex justify-between items-start mb-1">
             <div>
-                <h4 id="tt-word" class="text-xl font-bold text-blue-700 font-english capitalize"></h4>
-                <span id="tt-pos" class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded italic"></span>
+                <h4 id="tt-word" class="text-xl font-bold text-blue-700 font-english capitalize inline-block"></h4>
+                <span id="tt-ipa" class="text-sm text-gray-500 font-mono ml-2"></span> <!-- 音標 -->
             </div>
             <i class="fas fa-volume-up text-blue-500 animate-pulse"></i>
         </div>
         <div class="space-y-2">
-            <p class="text-sm text-gray-800 border-l-2 border-blue-400 pl-2"><span id="tt-def-zh" class="font-bold"></span> <span id="tt-def-en" class="text-gray-500 text-xs block mt-0.5"></span></p>
-            <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group" id="tt-ex-container">
-                <!-- 例句發音按鈕 -->
-                <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors" title="朗讀例句">
+            <p class="text-sm text-gray-800 border-l-2 border-blue-400 pl-2">
+                <span id="tt-def-zh" class="font-bold"></span> 
+            </p>
+            
+            <!-- 例句區塊 -->
+            <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group min-h-[40px] hidden" id="tt-ex-container">
+                <div id="tt-loading" class="absolute inset-0 flex items-center justify-center bg-blue-50 bg-opacity-80 hidden">
+                    <div class="loading-spinner" style="width:16px; height:16px; border-width:2px; border-top-color:#2563eb;"></div>
+                    <span class="ml-2 text-gray-500 italic">網路字典查詢中...</span>
+                </div>
+                <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors hidden" title="朗讀例句">
                     <i class="fas fa-volume-up"></i>
                 </button>
                 <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1 pr-5"></p>
                 <p id="tt-ex-zh" class="text-gray-600"></p>
+            </div>
+
+            <!-- 字根分析區塊 (如果有) -->
+            <div id="tt-analysis-container" class="mt-2 pt-2 border-t border-gray-100 hidden">
+                <p class="text-xs text-orange-600 font-bold mb-1"><i class="fas fa-project-diagram mr-1"></i>字根分析：</p>
+                <p id="tt-analysis" class="text-xs text-gray-700"></p>
             </div>
         </div>
         <div id="tooltipArrow" class="tooltip-arrow bottom"></div>
@@ -178,27 +189,14 @@
 
     <!-- 主容器 -->
     <div class="w-full max-w-7xl bg-white rounded-xl shadow-2xl overflow-hidden fade-in-up bg-opacity-95">
-        
-        <!-- 標題圖片區 -->
         <div class="w-full bg-blue-50 border-b border-gray-200 text-center relative group">
-            <img src="https://lh3.googleusercontent.com/d/1JmsYaXfbxskAaw9WXraX2gyi6a0W9--1" 
-                 alt="成績查詢系統標題" 
-                 referrerpolicy="no-referrer"
-                 class="max-w-full h-auto mx-auto object-contain"
-                 style="max-height: 200px; md:max-height: 250px;" 
-                 onerror="this.style.display='none'; document.getElementById('backup-title').style.display='block';">
-            <div id="backup-title" style="display:none;" class="py-10">
-                <h1 class="font-bold text-gray-800 tracking-wide text-title-size">鳳甲國中成績查詢系統</h1>
-                <p class="text-sm text-gray-500 mt-2">(若圖片無法顯示，請確認 Google Drive 檔案權限是否設為「公開」)</p>
-            </div>
+            <img src="https://lh3.googleusercontent.com/d/1JmsYaXfbxskAaw9WXraX2gyi6a0W9--1" alt="標題" referrerpolicy="no-referrer" class="max-w-full h-auto mx-auto object-contain" style="max-height: 200px; md:max-height: 250px;" onerror="this.style.display='none'; document.getElementById('backup-title').style.display='block';">
+            <div id="backup-title" style="display:none;" class="py-10"><h1 class="font-bold text-gray-800 tracking-wide text-title-size">鳳甲國中成績查詢系統</h1><p class="text-sm text-gray-500 mt-2">(Google Drive 圖片讀取失敗)</p></div>
         </div>
 
-        <!-- 溫馨小語區塊 -->
         <div class="w-full px-4 md:px-6 py-4 bg-yellow-50">
             <div class="quote-container p-4 rounded-r-lg flex flex-col md:flex-row items-start md:items-center shadow-sm">
-                <div class="mr-0 md:mr-5 text-yellow-600 mb-3 md:mb-0 self-start">
-                    <i class="fas fa-lightbulb text-3xl"></i>
-                </div>
+                <div class="mr-0 md:mr-5 text-yellow-600 mb-3 md:mb-0 self-start"><i class="fas fa-lightbulb text-3xl"></i></div>
                 <div class="flex-1 w-full">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 border-b border-yellow-200 pb-2">
                         <div class="flex flex-col">
@@ -218,11 +216,10 @@
             </div>
         </div>
 
-        <!-- 英文挑戰遊戲區塊 -->
+        <!-- 單字遊戲區塊 -->
         <div class="w-full px-4 md:px-6 mb-4">
             <div class="game-container relative">
                 <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGame()">
-                    <!-- ★★★ 修改後的標題區塊 ★★★ -->
                     <h3 class="font-bold text-gray-800 text-lg flex items-center flex-wrap">
                         <i class="fas fa-gamepad text-green-500 mr-2 text-2xl"></i>
                         英文單字挑戰
@@ -233,22 +230,26 @@
                 </div>
                 
                 <div id="gameContent" class="hidden mt-4 border-t border-gray-100 pt-4">
-                    <div id="gameLoading" class="hidden text-center py-10">
-                        <div class="loading-spinner mx-auto mb-2"></div>
-                        <p class="text-gray-500">正在下載題庫...</p>
-                    </div>
-
+                    <div id="gameLoading" class="hidden text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><p class="text-gray-500">正在下載題庫...</p></div>
                     <div id="gameBody" class="hidden">
                         <div class="text-center mb-6 relative">
                             <div class="absolute top-0 right-0 text-xs text-gray-400">Goal: <span class="font-bold text-indigo-600">Streak 10</span></div>
                             <div id="q-word" class="text-4xl md:text-5xl font-bold text-indigo-600 font-english mb-2 tracking-wide">Loading...</div>
                             <div class="flex justify-center items-center gap-2 mb-2">
                                 <span id="q-type" class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wider">Word</span>
-                                <button onclick="playCurrentGameAudio()" class="text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors" title="重聽發音"><i class="fas fa-volume-up text-xl"></i></button>
+                                <button onclick="playCurrentGameAudio()" class="text-gray-400 hover:text-indigo-600 focus:outline-none transition-colors"><i class="fas fa-volume-up text-xl"></i></button>
                             </div>
                             <p class="text-gray-500 text-sm">請選擇正確的中文意思：</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-grid"></div>
+                        
+                        <!-- 答題後的字根分析顯示區 -->
+                        <div id="gameAnalysis" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-gray-700 hidden text-center">
+                            <i class="fas fa-search-plus text-yellow-600 mr-1"></i>
+                            <span class="font-bold text-yellow-700">補充分析：</span>
+                            <span id="gameAnalysisText"></span>
+                        </div>
+
                         <div class="mt-6 flex justify-between items-center border-t border-gray-100 pt-4">
                             <div class="flex items-center">
                                 <span class="text-sm text-gray-500 mr-2">連續答對 Streak:</span>
@@ -266,491 +267,294 @@
             </div>
         </div>
 
-        <!-- 查詢表單區 -->
         <div class="p-4 md:p-6 lg:p-10">
             <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                <div class="col-span-1">
-                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId"><i class="fas fa-id-card text-blue-500 mr-2"></i>學號</label>
-                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="studentId" type="text" placeholder="請輸入學號" required>
-                </div>
-                <div class="col-span-1">
-                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4"><i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼</label>
-                    <div class="relative">
-                        <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="idLast4" type="password" placeholder="後4碼" maxlength="6" required>
-                        <button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"><i class="fas fa-eye text-2xl"></i></button>
-                    </div>
-                </div>
-                <div class="col-span-1">
-                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="yearSelect"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>學年度</label>
-                    <div class="relative">
-                        <select id="yearSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="" disabled selected>載入中...</option></select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div>
-                    </div>
-                </div>
-                <div class="col-span-1">
-                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="semesterSelect"><i class="fas fa-clock text-blue-500 mr-2"></i>學期 (選填)</label>
-                    <div class="relative">
-                        <select id="semesterSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">上學期 (1)</option><option value="2">下學期 (2)</option></select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div>
-                    </div>
-                </div>
-                <div class="col-span-1">
-                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="examSelect"><i class="fas fa-file-alt text-blue-500 mr-2"></i>段考 (選填)</label>
-                    <div class="relative">
-                        <select id="examSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">第一次段考 (1)</option><option value="2">第二次段考 (2)</option><option value="3">第三次段考 (3)</option></select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div>
-                    </div>
-                </div>
+                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId"><i class="fas fa-id-card text-blue-500 mr-2"></i>學號</label><input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="studentId" type="text" placeholder="請輸入學號" required></div>
+                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4"><i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼</label><div class="relative"><input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="idLast4" type="password" placeholder="後4碼" maxlength="6" required><button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"><i class="fas fa-eye text-2xl"></i></button></div></div>
+                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="yearSelect"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>學年度</label><div class="relative"><select id="yearSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="" disabled selected>載入中...</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
+                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="semesterSelect"><i class="fas fa-clock text-blue-500 mr-2"></i>學期 (選填)</label><div class="relative"><select id="semesterSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">上學期 (1)</option><option value="2">下學期 (2)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
+                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="examSelect"><i class="fas fa-file-alt text-blue-500 mr-2"></i>段考 (選填)</label><div class="relative"><select id="examSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">第一次段考 (1)</option><option value="2">第二次段考 (2)</option><option value="3">第三次段考 (3)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
                 <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col sm:flex-row justify-center gap-4 md:gap-6 mt-6">
                     <button type="button" id="searchBtn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center shadow-md text-title-size"><i class="fas fa-search mr-3"></i> 查詢</button>
                     <button type="button" id="clearBtn" class="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white font-bold py-4 px-12 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-200 transform hover:scale-105 hover:shadow-lg flex items-center justify-center shadow-md text-title-size"><i class="fas fa-eraser mr-3"></i> 清除</button>
                 </div>
             </form>
             <div id="messageArea" class="mt-6 text-center hidden p-4 rounded-lg text-content-size font-bold"></div>
-            <div id="loading" class="hidden flex flex-col justify-center items-center mt-12 mb-8">
-                <div class="loading-spinner mb-4" style="width: 50px; height: 50px; border-width: 6px;"></div>
-                <span class="text-gray-600 font-medium animate-pulse text-title-size">正在從資料庫查詢中...</span>
-            </div>
+            <div id="loading" class="hidden flex flex-col justify-center items-center mt-12 mb-8"><div class="loading-spinner mb-4" style="width: 50px; height: 50px; border-width: 6px;"></div><span class="text-gray-600 font-medium animate-pulse text-title-size">正在從資料庫查詢中...</span></div>
         </div>
 
-        <!-- 結果顯示區 -->
         <div id="resultArea" class="hidden border-t-4 border-blue-600 bg-gray-50 transition-all duration-500">
             <div class="p-4 md:p-6">
                 <h2 class="font-bold text-gray-800 mb-6 border-l-8 border-blue-500 pl-4 text-title-size">查詢結果</h2>
                 <div class="table-container bg-white rounded-lg shadow-sm border border-gray-200">
                     <table class="min-w-full leading-normal">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-800 uppercase font-bold tracking-wider text-title-size">
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學年度</th>
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學期</th>
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">段考</th>
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">班級</th>
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">座號</th>
-                                <th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">姓名</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">國語</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">英文</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">數學</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">歷史</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地理</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">公民</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">自然</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地科</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 text-red-600 font-extrabold bg-red-50 whitespace-nowrap">加權平均</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科班排</th>
-                                <th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科校排</th>
-                            </tr>
-                        </thead>
+                        <thead><tr class="bg-gray-100 text-gray-800 uppercase font-bold tracking-wider text-title-size"><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學年度</th><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">學期</th><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">段考</th><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">班級</th><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">座號</th><th class="py-4 px-6 text-left border-b-2 border-gray-300 whitespace-nowrap">姓名</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">國語</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">英文</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">數學</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">歷史</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地理</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">公民</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">自然</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 bg-blue-50 text-blue-900 whitespace-nowrap">地科</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 text-red-600 font-extrabold bg-red-50 whitespace-nowrap">加權平均</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科班排</th><th class="py-4 px-6 text-center border-b-2 border-gray-300 whitespace-nowrap">考科校排</th></tr></thead>
                         <tbody id="resultBody" class="text-gray-700 text-content-size"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-        
-        <!-- 頁尾 -->
-        <div class="bg-gray-100 border-t border-gray-200 py-6 text-center text-gray-500 text-content-size px-4">
-            &copy; <span id="currentYear"></span> 鳳甲國中成績查詢系統 | <span class="text-blue-500 italic font-english block md:inline mt-2 md:mt-0">Believe in yourself.</span>
-        </div>
+        <div class="bg-gray-100 border-t border-gray-200 py-6 text-center text-gray-500 text-content-size px-4">&copy; <span id="currentYear"></span> 鳳甲國中成績查詢系統 | <span class="text-blue-500 italic font-english block md:inline mt-2 md:mt-0">Believe in yourself.</span></div>
     </div>
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-        // 您的 Google Apps Script 網址
         const GAS_URL = "https://script.google.com/macros/s/AKfycbykiv2Rn3tRq1eaR8Yee5m8hfEwCN1naxrE8BAxoBNyDAPlizkT7S9l_RIUOTTqctycvQ/exec";
 
-        let quotes = [];
-        let gameData = [];
-        let pokemonData = []; 
-        let currentQuestion = null;
-        let currentQuoteData = null;
-        let streak = 0;
-        let isGameOpen = false;
+        let quotes = [], gameData = [], pokemonData = [];
+        let currentQuestion = null, currentQuoteData = null;
+        let streak = 0, isGameOpen = false;
         const TARGET_STREAK = 10;
+        const wordCache = {}; 
 
-        // UI 元素
         const rateInput = document.getElementById('speechRate');
         const rateValue = document.getElementById('rateValue');
         const tooltip = document.getElementById('vocabTooltip');
-        const tooltipArrow = document.getElementById('tooltipArrow');
-        const ttWord = document.getElementById('tt-word');
-        const ttPos = document.getElementById('tt-pos');
+        const ttWord = document.getElementById('tt-word'); // Removed ttPos variable
         const ttDefZh = document.getElementById('tt-def-zh');
-        const ttDefEn = document.getElementById('tt-def-en');
-        const ttExEn = document.getElementById('tt-ex-en');
-        const ttExZh = document.getElementById('tt-ex-zh');
-        const btnReadEx = document.getElementById('btn-read-ex'); 
+        // 注意：這裡移除了 ttDefEn，因為 HTML 中已經沒有 id="tt-def-en"
+        const ttExEn = document.getElementById('tt-ex-en'), ttExZh = document.getElementById('tt-ex-zh');
+        const ttIpa = document.getElementById('tt-ipa'); // 音標
+        const ttAnalysis = document.getElementById('tt-analysis'); // 字根分析 (Tooltip)
+        const ttAnalysisContainer = document.getElementById('tt-analysis-container');
+        const btnReadEx = document.getElementById('btn-read-ex');
         const ttExContainer = document.getElementById('tt-ex-container');
+        const ttLoading = document.getElementById('tt-loading');
 
         rateInput.addEventListener('input', (e) => { rateValue.textContent = e.target.value + 'x'; });
         document.addEventListener('click', (e) => {
             if (!tooltip.contains(e.target) && !e.target.classList.contains('vocab-highlight')) hideTooltip();
         });
-
-        // 例句發音按鈕
         btnReadEx.addEventListener('click', (e) => {
             e.stopPropagation();
-            if(ttExEn.textContent) {
-                playAudio(ttExEn.textContent);
-            }
+            if(ttExEn.textContent) playAudio(ttExEn.textContent);
         });
 
-        // 頁面載入
         window.addEventListener('load', () => {
-            fetchYears();     
-            fetchQuotes();    
-            fetchGameData();  
-            fetchPokemon(); 
+            fetchYears(); fetchQuotes(); fetchGameData(); fetchPokemon();
         });
 
-        // ---------------- API Fetch ----------------
         async function callAPI(payload) {
             const response = await fetch(GAS_URL, {
-                method: 'POST',
-                redirect: 'follow', 
-                referrerPolicy: 'no-referrer', 
+                method: 'POST', redirect: 'follow', referrerPolicy: 'no-referrer', 
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const text = await response.text();
-            try { return JSON.parse(text); } 
-            catch (e) { throw new Error("伺服器回應格式錯誤"); }
+            try { return JSON.parse(text); } catch (e) { throw new Error("JSON Error"); }
         }
 
-        async function fetchQuotes() {
-            try {
-                const response = await callAPI({ action: "getQuotes" });
-                if (response.status === "success" && response.data.length > 0) {
-                    quotes = response.data;
-                    showRandomQuote();
-                } else { document.getElementById('dailyQuote').innerHTML = '<p class="text-red-500">暫無名言資料</p>'; }
-            } catch (e) { console.error("Fetch Quotes Error:", e); }
-        }
+        async function fetchQuotes() { try { const res = await callAPI({ action: "getQuotes" }); if (res.status === "success" && res.data.length > 0) { quotes = res.data; showRandomQuote(); } else { document.getElementById('dailyQuote').innerHTML = '<p class="text-red-500">暫無名言資料</p>'; } } catch (e) { console.error(e); } }
+        async function fetchGameData() { try { const res = await callAPI({ action: "getGameData" }); if (res.status === "success" && res.data.length > 0) { gameData = res.data; nextQuestion(); } } catch (e) { console.error(e); } }
+        async function fetchPokemon() { try { const res = await callAPI({ action: "getPokemon" }); if (res.status === "success") pokemonData = res.data; } catch (e) { console.error(e); } }
 
-        async function fetchGameData() {
-            try {
-                const response = await callAPI({ action: "getGameData" });
-                if (response.status === "success" && response.data.length > 0) {
-                    gameData = response.data;
-                    nextQuestion();
-                } else { console.warn("No game data found."); }
-            } catch (e) { console.error("Fetch Game Data Error:", e); }
-        }
-
-        async function fetchPokemon() {
-            try {
-                const response = await callAPI({ action: "getPokemon" });
-                if (response.status === "success") {
-                    pokemonData = response.data;
-                }
-            } catch (e) { console.error("Fetch Pokemon Error:", e); }
-        }
-
-        // ------------------ Quote Logic ------------------
-        function processQuoteWithKeywords(quoteData) {
-            let processedHtml = quoteData.en;
-            if (!quoteData.keywords || quoteData.keywords.length === 0) return processedHtml;
-            const sortedKeywords = quoteData.keywords.map((kw, index) => ({ ...kw, originalIndex: index })).sort((a, b) => b.word.length - a.word.length);
-            sortedKeywords.forEach((kw) => {
-                const escapedWord = kw.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
-                const regex = new RegExp(`\\b(${escapedWord})\\b`, 'gi');
-                processedHtml = processedHtml.replace(regex, (match) => `###${kw.originalIndex}###${match}###END###`);
+        function processQuoteWithKeywords(data) {
+            let html = data.en;
+            if (!data.keywords || data.keywords.length === 0) return html;
+            const kws = data.keywords.map((k, i) => ({ ...k, idx: i })).sort((a, b) => b.word.length - a.word.length);
+            kws.forEach(k => {
+                const esc = k.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+                html = html.replace(new RegExp(`\\b(${esc})\\b`, 'gi'), (m) => `###${k.idx}###${m}###END###`);
             });
-            processedHtml = processedHtml.replace(/###(\d+)###(.*?)###END###/g, (match, index, text) => `<span class="vocab-highlight" data-kw-index="${index}" onclick="handleWordClick(event)">${text}</span>`);
-            return processedHtml;
+            return html.replace(/###(\d+)###(.*?)###END###/g, (m, i, t) => `<span class="vocab-highlight" data-kw-index="${i}" onclick="handleWordClick(event)">${t}</span>`);
         }
 
         function showRandomQuote() {
             if (quotes.length === 0) return;
-            const quoteContainer = document.getElementById('dailyQuote');
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            currentQuoteData = quotes[randomIndex];
-            const interactiveEnQuote = processQuoteWithKeywords(currentQuoteData);
-            quoteContainer.style.opacity = 0;
+            currentQuoteData = quotes[Math.floor(Math.random() * quotes.length)];
+            const html = processQuoteWithKeywords(currentQuoteData);
+            const container = document.getElementById('dailyQuote');
+            container.style.opacity = 0;
             setTimeout(() => {
-                quoteContainer.innerHTML = `<p class="text-gray-800 font-medium text-xl mb-1">${currentQuoteData.zh}</p><div class="relative"><p class="text-gray-600 font-normal italic text-lg font-english mr-3 leading-loose" id="enQuoteText">${interactiveEnQuote}<button onclick="speakQuote()" class="inline-block ml-2 text-yellow-600 hover:text-yellow-800 speak-btn focus:outline-none align-middle" title="朗讀整句"><i class="fas fa-volume-up text-xl"></i></button></p></div>`;
-                quoteContainer.style.opacity = 1;
-                attachKeywordEvents();
+                container.innerHTML = `<p class="text-gray-800 font-medium text-xl mb-1">${currentQuoteData.zh}</p><div class="relative"><p class="text-gray-600 font-normal italic text-lg font-english mr-3 leading-loose" id="enQuoteText">${html}<button onclick="speakQuote()" class="inline-block ml-2 text-yellow-600 hover:text-yellow-800 speak-btn focus:outline-none align-middle" title="朗讀"><i class="fas fa-volume-up text-xl"></i></button></p></div>`;
+                container.style.opacity = 1;
+                document.querySelectorAll('.vocab-highlight').forEach(el => el.addEventListener('mouseenter', (e) => showTooltip(e.target)));
             }, 300);
         }
 
-        function attachKeywordEvents() {
-            document.querySelectorAll('.vocab-highlight').forEach(el => el.addEventListener('mouseenter', (e) => showTooltip(e.target)));
-        }
         function handleWordClick(e) { e.stopPropagation(); showTooltip(e.target); }
-        
-        function showTooltip(targetElement) {
-            const index = targetElement.getAttribute('data-kw-index');
-            const keywordData = currentQuoteData.keywords[index];
-            if (!keywordData) return;
+
+        async function showTooltip(el) {
+            const idx = el.getAttribute('data-kw-index');
+            const data = currentQuoteData.keywords[idx];
+            if (!data) return;
+
+            document.querySelectorAll('.vocab-highlight').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            playAudio(data.word);
+
+            ttWord.textContent = data.word; // Removed ttPos.textContent assignment
             
-            document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active'));
-            targetElement.classList.add('active');
-            
-            // 自動發音單字
-            playAudio(keywordData.word);
-            
-            // 填充內容
-            ttWord.textContent = keywordData.word;
-            ttPos.textContent = keywordData.pos || "單字";
-            ttDefZh.textContent = keywordData.zh || "";
-            ttDefEn.textContent = keywordData.en || ""; 
-            ttExZh.textContent = keywordData.ex_zh || "";
-            
-            // 處理例句邏輯：若沒例句，呼叫後端查詢
-            if (keywordData.ex_en && keywordData.ex_en !== "") {
-                ttExEn.textContent = keywordData.ex_en;
-                ttExZh.textContent = keywordData.ex_zh || ""; // 顯示例句翻譯
-                ttExContainer.classList.remove('hidden');
-                btnReadEx.style.display = 'block';
-                if(keywordData.def_zh && ttDefZh.textContent === "") ttDefZh.textContent = keywordData.def_zh;
+            // 顯示字根分析 (如果有)
+            if (data.analysis) {
+                ttAnalysisContainer.classList.remove('hidden');
+                ttAnalysis.textContent = data.analysis;
             } else {
-                ttExEn.textContent = "搜尋例句中...";
-                ttExZh.textContent = "";
-                ttExContainer.classList.remove('hidden');
-                btnReadEx.style.display = 'none'; 
-                
-                // 呼叫後端 getWordInfo
-                callAPI({ action: "getWordInfo", word: keywordData.word }).then(res => {
-                    if(res.status === "success" && res.data) {
-                        const info = res.data;
-                        ttExEn.textContent = info.ex_en || "無例句";
-                        ttExZh.textContent = info.ex_zh || "";
-                        if(info.ex_en) btnReadEx.style.display = 'block';
-                        
-                        // 更新快取，避免重複查詢
-                        keywordData.ex_en = info.ex_en;
-                        keywordData.ex_zh = info.ex_zh;
-                        
-                        // 如果原本沒定義，補上定義
-                        if(ttDefZh.textContent === "" && info.def_zh) {
-                            ttDefZh.textContent = info.def_zh;
-                            keywordData.zh = info.def_zh;
-                        }
-                    } else {
-                        ttExEn.textContent = "無例句";
-                        ttExContainer.classList.add('hidden');
-                    }
-                });
+                ttAnalysisContainer.classList.add('hidden');
             }
 
-            const rect = targetElement.getBoundingClientRect();
-            const tooltipHeight = tooltip.offsetHeight || 200;
-            const tooltipWidth = tooltip.offsetWidth || 300;
-            let top = rect.top - tooltipHeight - 12; 
-            let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-            tooltipArrow.className = 'tooltip-arrow bottom';
-            if (top < 10) { top = rect.bottom + 12; tooltipArrow.className = 'tooltip-arrow top'; }
+            const rect = el.getBoundingClientRect();
+            const h = tooltip.offsetHeight || 200, w = tooltip.offsetWidth || 300;
+            let top = rect.top - h - 12, left = rect.left + rect.width/2 - w/2;
+            const arrow = document.getElementById('tooltipArrow');
+            arrow.className = 'tooltip-arrow bottom';
+            if (top < 10) { top = rect.bottom + 12; arrow.className = 'tooltip-arrow top'; }
             if (left < 10) left = 10;
-            if (left + tooltipWidth > window.innerWidth - 10) { left = window.innerWidth - tooltipWidth - 10; }
-            let arrowLeft = rect.left + (rect.width / 2) - left;
-            if (arrowLeft < 15) arrowLeft = 15;
-            if (arrowLeft > tooltipWidth - 15) arrowLeft = tooltipWidth - 15;
-            tooltipArrow.style.left = `${arrowLeft}px`;
-            tooltipArrow.style.transform = 'translateX(-50%)';
-            tooltip.style.top = `${top}px`;
-            tooltip.style.left = `${left}px`;
+            if (left + w > window.innerWidth - 10) left = window.innerWidth - w - 10;
+            arrow.style.left = `${Math.min(Math.max(rect.left + rect.width/2 - left, 15), w - 15)}px`;
+            tooltip.style.top = `${top}px`; tooltip.style.left = `${left}px`;
             tooltip.classList.add('show');
-        }
-        function hideTooltip() { tooltip.classList.remove('show'); document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active')); }
 
-        // ------------------ Game Logic ------------------
-        function toggleGame() {
-            isGameOpen = !isGameOpen;
-            const content = document.getElementById('gameContent');
-            const icon = document.getElementById('gameToggleIcon');
-            if(isGameOpen) {
-                content.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-                if (gameData.length === 0) {
-                    document.getElementById('gameLoading').classList.remove('hidden');
-                    document.getElementById('gameBody').classList.add('hidden');
-                    if(!currentQuestion) fetchGameData().then(() => { document.getElementById('gameLoading').classList.add('hidden'); document.getElementById('gameBody').classList.remove('hidden'); });
+            if (!data.zh || !data.ex_en) {
+                const key = data.word.toLowerCase();
+                if (wordCache[key]) {
+                    updateTooltip(wordCache[key]);
                 } else {
-                    document.getElementById('gameLoading').classList.add('hidden');
-                    document.getElementById('gameBody').classList.remove('hidden');
-                    if(!currentQuestion) nextQuestion();
+                    ttLoading.classList.remove('hidden');
+                    ttExContainer.classList.remove('hidden');
+                    btnReadEx.style.display = 'none';
+                    ttDefZh.textContent = "查詢中..."; ttExEn.textContent = ""; ttExZh.textContent = ""; ttIpa.textContent = "";
+                    
+                    try {
+                        const res = await callAPI({ action: "getWordInfo", word: data.word });
+                        if (res.status === "success") {
+                            const info = res.data;
+                            data.zh = info.def_zh; data.ex_en = info.ex_en; data.ex_zh = info.ex_zh; data.ipa = info.ipa;
+                            wordCache[key] = data;
+                            updateTooltip(data);
+                        } else {
+                            ttDefZh.textContent = "查詢失敗"; ttLoading.classList.add('hidden');
+                        }
+                    } catch (e) { ttDefZh.textContent = "網路錯誤"; ttLoading.classList.add('hidden'); }
                 }
             } else {
-                content.classList.add('hidden');
-                icon.classList.remove('rotate-180');
+                updateTooltip(data);
             }
-        }
-        
-        function nextQuestion() {
-            if (gameData.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * gameData.length);
-            currentQuestion = gameData[randomIndex];
-            document.getElementById('q-word').textContent = currentQuestion.question;
-            document.getElementById('q-type').textContent = currentQuestion.type;
-            let optionsForRender = [...currentQuestion.options];
-            for (let i = optionsForRender.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [optionsForRender[i], optionsForRender[j]] = [optionsForRender[j], optionsForRender[i]];
-            }
-            const optionsHtml = optionsForRender.map(optText => `<button onclick="checkAnswer(this, '${optText.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${optText}</button>`).join('');
-            document.getElementById('options-grid').innerHTML = optionsHtml;
-            playCurrentGameAudio();
         }
 
-        function checkAnswer(btn, selectedText) {
-            const btns = document.querySelectorAll('.game-option-btn');
-            btns.forEach(b => b.disabled = true); 
-            if(selectedText === currentQuestion.answer) {
-                btn.classList.add('correct');
-                streak++;
+        function updateTooltip(data) {
+            ttLoading.classList.add('hidden');
+            ttDefZh.textContent = data.zh || "無中文翻譯";
+            ttExEn.textContent = data.ex_en || "";
+            ttExZh.textContent = data.ex_zh || "";
+            ttIpa.textContent = data.ipa ? `[${data.ipa}]` : ""; // 顯示音標
+            
+            if (data.ex_en && data.ex_en !== "No example found.") {
+                ttExContainer.classList.remove('hidden');
+                btnReadEx.style.display = 'block';
+            } else {
+                ttExContainer.classList.add('hidden');
+                btnReadEx.style.display = 'none';
+            }
+        }
+
+        function hideTooltip() { tooltip.classList.remove('show'); document.querySelectorAll('.vocab-highlight').forEach(e => e.classList.remove('active')); }
+
+        // 遊戲功能
+        function toggleGame() {
+            isGameOpen = !isGameOpen;
+            const content = document.getElementById('gameContent'), icon = document.getElementById('gameToggleIcon');
+            if(isGameOpen) {
+                content.classList.remove('hidden'); icon.classList.add('rotate-180');
+                if(gameData.length === 0) fetchGameData().then(nextQuestion);
+            } else {
+                content.classList.add('hidden'); icon.classList.remove('rotate-180');
+            }
+        }
+        function nextQuestion() {
+            if(gameData.length === 0) return;
+            currentQuestion = gameData[Math.floor(Math.random() * gameData.length)];
+            document.getElementById('q-word').textContent = currentQuestion.question;
+            document.getElementById('q-type').textContent = currentQuestion.type;
+            document.getElementById('gameAnalysis').classList.add('hidden'); // 隱藏上題的分析
+            
+            const opts = [...currentQuestion.options].sort(()=>Math.random()-0.5);
+            document.getElementById('options-grid').innerHTML = opts.map(o => 
+                `<button onclick="checkAnswer(this, '${o.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${o}</button>`
+            ).join('');
+            playAudio(currentQuestion.sound || currentQuestion.question);
+        }
+        function checkAnswer(btn, val) {
+            document.querySelectorAll('.game-option-btn').forEach(b => b.disabled = true);
+            
+            // 顯示字根分析 (如果有)
+            if (currentQuestion.analysis) {
+                document.getElementById('gameAnalysisText').textContent = currentQuestion.analysis;
+                document.getElementById('gameAnalysis').classList.remove('hidden');
+            }
+
+            if(val === currentQuestion.answer) {
+                btn.classList.add('correct'); streak++;
                 document.getElementById('streak-count').textContent = streak;
                 if(streak > 0) document.getElementById('streak-icon').style.display = 'inline-block';
                 playFeedbackAudio("Excellent!");
-                if (streak === TARGET_STREAK) { showReward(); }
+                if(streak === TARGET_STREAK) showReward();
             } else {
-                btn.classList.add('wrong');
-                streak = 0;
+                btn.classList.add('wrong'); streak = 0;
                 document.getElementById('streak-count').textContent = streak;
                 document.getElementById('streak-icon').style.display = 'none';
-                btns.forEach(b => { if(b.textContent.trim() === currentQuestion.answer) b.classList.add('correct'); });
+                document.querySelectorAll('.game-option-btn').forEach(b => { if(b.textContent.trim()===currentQuestion.answer) b.classList.add('correct'); });
                 playFeedbackAudio("Wrong answer.");
             }
         }
-
-        // ------------------ Reward Logic ------------------
         function showReward() {
-            if (pokemonData.length === 0) {
-                renderRewardCard({ "名稱": "English Master", "圖片": "", "星等": 5, "特殊": "特殊" });
-            } else {
-                const randIndex = Math.floor(Math.random() * pokemonData.length);
-                const card = pokemonData[randIndex];
-                renderRewardCard(card);
-            }
-            setTimeout(() => {
-                const modal = document.getElementById('rewardModal');
-                modal.classList.add('show');
-                playFeedbackAudio("Congratulations! You got a Pokemon card!");
-                const cardElem = document.querySelector('.poke-card');
-                for(let i=0; i<5; i++) { createSparkle(cardElem); }
-            }, 800); 
-        }
-
-        function renderRewardCard(cardData) {
-            const container = document.getElementById('rewardCardContainer');
-            const star = parseInt(cardData["星等"]) || 3;
+            const card = pokemonData.length ? pokemonData[Math.floor(Math.random() * pokemonData.length)] : { "名稱": "Master", "圖片": "", "星等": 5, "特殊": "特殊" };
+            const star = parseInt(card["星等"]) || 3;
+            const attr = card["屬性"] || ""; // 讀取屬性
             
-            let tierClass = "bronze";
-            let hp = "60 HP";
-            if (star >= 5) { tierClass = "gold"; hp = "120 HP"; }
-            else if (star === 4) { tierClass = "silver"; hp = "90 HP"; }
+            let cls = "bronze", hp = "60 HP";
+            if(star>=5) { cls="gold"; hp="120 HP"; } else if(star===4) { cls="silver"; hp="90 HP"; }
+            const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
             
-            let imgContent = '';
-            if (cardData["圖片"] && cardData["圖片"].startsWith('http')) {
-                imgContent = `<img src="${cardData["圖片"]}" class="poke-img-content" alt="${cardData["名稱"]}">`;
-            } else {
-                imgContent = `<i class="fas fa-dragon poke-img-placeholder animate-pulse"></i>`;
-            }
-
-            const html = `
-            <div class="poke-card ${tierClass}">
+            document.getElementById('rewardCardContainer').innerHTML = `
+            <div class="poke-card ${cls}">
                 <div class="poke-card-inner">
                     <div class="poke-header">
-                        <span>${cardData["特殊"] || "一般"}</span>
+                        <div class="flex items-center">
+                            ${attr ? `<span class="text-xs bg-gray-700 text-white px-1.5 py-0.5 rounded mr-1">${attr}</span>` : ''}
+                            <span class="text-sm">${card["特殊"]||"一般"}</span>
+                        </div>
                         <span class="text-red-600 font-bold">${hp}</span>
                     </div>
-                    <div class="poke-img-frame">${imgContent}</div>
+                    <div class="poke-img-frame">${img}</div>
                     <div class="text-center w-full">
-                        <h3 class="text-xl font-bold">${cardData["名稱"]}</h3>
+                        <h3 class="text-xl font-bold">${card["名稱"]}</h3>
                         <p class="text-xs text-gray-700 italic border-b border-gray-400 pb-1 mb-1">Star Rank: ${star}</p>
                         <div class="text-left text-xs px-2 text-gray-800 font-medium">
-                             <div class="flex justify-between mb-1">
+                            <div class="flex justify-between mb-1">
                                 <span><i class="fas fa-star text-yellow-500"></i> Vocabulary Hit</span>
-                                <span>${star * 10}+</span>
+                                <span>${star*10}+</span>
                             </div>
-                            <p class="text-gray-700 transform scale-90 origin-left leading-tight">This card is proof of your English mastery. Keep learning!</p>
+                            <p class="text-gray-700 transform scale-90 origin-left leading-tight">Card collected!</p>
                         </div>
                     </div>
                 </div>
             </div>`;
-            container.innerHTML = html;
+            setTimeout(() => { document.getElementById('rewardModal').classList.add('show'); playFeedbackAudio("Congratulations!"); const ce = document.querySelector('.poke-card'); for(let i=0;i<5;i++) { const s = document.createElement('div'); s.className = 'sparkle'; const sz = Math.random()*20+10; s.style.width=`${sz}px`; s.style.height=`${sz}px`; s.style.top=`${Math.random()*100}%`; s.style.left=`${Math.random()*100}%`; s.style.animationDelay=`${Math.random()}s`; ce.appendChild(s); } }, 800);
         }
-
         function closeReward() {
-            const modal = document.getElementById('rewardModal');
-            modal.classList.remove('show');
-            streak = 0; 
-            document.getElementById('streak-count').textContent = streak;
-            document.getElementById('streak-icon').style.display = 'none';
+            document.getElementById('rewardModal').classList.remove('show');
+            streak = 0; document.getElementById('streak-count').textContent = 0; document.getElementById('streak-icon').style.display = 'none';
             nextQuestion();
         }
-
-        function createSparkle(parent) {
-            const star = document.createElement('div');
-            star.classList.add('sparkle');
-            const size = Math.random() * 20 + 10;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.animationDelay = `${Math.random()}s`;
-            parent.appendChild(star);
-        }
-
-        // ------------------ General System Logic ------------------
-        function playAudio(text) {
-            try { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = parseFloat(rateInput.value) || 1.0; window.speechSynthesis.speak(u); } catch (err) { console.log("Audio playback failed:", err); }
-        }
-        function playCurrentGameAudio() { if(!currentQuestion) return; playAudio(currentQuestion.sound || currentQuestion.question); }
-        function speakQuote() { if (!currentQuoteData) return; playAudio(currentQuoteData.en); }
-        function playFeedbackAudio(text) { setTimeout(() => { const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 1.1; window.speechSynthesis.speak(u); }, 200); }
-        
-        async function fetchYears() {
-            try {
-                const json = await callAPI({ action: "getYears" });
-                const select = document.getElementById('yearSelect');
-                if (json.status === "success") {
-                    select.innerHTML = '<option value="" disabled selected>請選擇學年度</option>';
-                    if (json.data.length === 0) select.innerHTML += '<option value="" disabled>無資料</option>';
-                    json.data.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; select.appendChild(opt); });
-                } else { document.getElementById('messageArea').textContent = "無法載入學年度"; }
-            } catch (error) { console.error(error); }
-        }
-
-        // Search Form Handlers
-        const elements = { studentId: document.getElementById('studentId'), idLast4: document.getElementById('idLast4'), toggleIdVisibility: document.getElementById('toggleIdVisibility'), yearSelect: document.getElementById('yearSelect'), semesterSelect: document.getElementById('semesterSelect'), examSelect: document.getElementById('examSelect'), searchBtn: document.getElementById('searchBtn'), clearBtn: document.getElementById('clearBtn'), loading: document.getElementById('loading'), messageArea: document.getElementById('messageArea'), resultArea: document.getElementById('resultArea'), resultBody: document.getElementById('resultBody') };
-        
-        elements.toggleIdVisibility.addEventListener('click', () => { const input = elements.idLast4; const icon = elements.toggleIdVisibility.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); } });
-        
-        elements.searchBtn.addEventListener('click', async () => {
-            const studentId = elements.studentId.value.trim(); const idLast4 = elements.idLast4.value.trim(); const year = elements.yearSelect.value;
-            if (!studentId || !idLast4 || !year) { elements.messageArea.textContent = "請輸入完整查詢資訊"; elements.messageArea.classList.remove('hidden'); return; }
-            setLoadingState(true);
-            try {
-                const json = await callAPI({ action: "search", studentId, idLast4, year, semester: elements.semesterSelect.value, exam: elements.examSelect.value });
-                if (json.status === "success") renderTable(json.data); else { elements.messageArea.textContent = json.message; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); }
-            } catch (error) { elements.messageArea.textContent = "連線錯誤"; elements.messageArea.classList.remove('hidden'); } finally { setLoadingState(false); }
+        function playAudio(t) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=parseFloat(rateInput.value)||1.0; window.speechSynthesis.speak(u); }
+        function speakQuote() { if(currentQuoteData) playAudio(currentQuoteData.en); }
+        function playFeedbackAudio(t) { setTimeout(()=>{const u=new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=1.1; window.speechSynthesis.speak(u);},200); }
+        function playCurrentGameAudio() { if(currentQuestion) playAudio(currentQuestion.sound || currentQuestion.question); }
+        async function fetchYears() { try { const json = await callAPI({ action: "getYears" }); const sel = document.getElementById('yearSelect'); if (json.status === "success") { sel.innerHTML = '<option value="" disabled selected>請選擇學年度</option>'; if(json.data.length===0) sel.innerHTML+='<option value="" disabled>無資料</option>'; json.data.forEach(y => { const o = document.createElement('option'); o.value=y; o.textContent=y; sel.appendChild(o); }); } } catch (e) { console.error(e); } }
+        const els = { studentId: document.getElementById('studentId'), idLast4: document.getElementById('idLast4'), toggleId: document.getElementById('toggleIdVisibility'), yearSelect: document.getElementById('yearSelect'), semSelect: document.getElementById('semesterSelect'), examSelect: document.getElementById('examSelect'), searchBtn: document.getElementById('searchBtn'), clearBtn: document.getElementById('clearBtn'), loading: document.getElementById('loading'), msgArea: document.getElementById('messageArea'), resArea: document.getElementById('resultArea'), resBody: document.getElementById('resultBody') };
+        els.toggleId.addEventListener('click', () => { const type = els.idLast4.type === 'password' ? 'text' : 'password'; els.idLast4.type = type; els.toggleId.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash'; });
+        els.searchBtn.addEventListener('click', async () => {
+            const sid = els.studentId.value.trim(), pw = els.idLast4.value.trim(), yr = els.yearSelect.value;
+            if (!sid || !pw || !yr) { showMsg("請輸入完整查詢資訊", "error"); return; }
+            setLoading(true);
+            try { const res = await callAPI({ action: "search", studentId: sid, idLast4: pw, year: yr, semester: els.semSelect.value, exam: els.examSelect.value }); if (res.status === "success") renderTable(res.data); else { showMsg(res.message, "error"); els.resArea.classList.add('hidden'); } } catch (e) { showMsg("連線錯誤", "error"); } finally { setLoading(false); }
         });
-        
-        elements.clearBtn.addEventListener('click', () => { elements.studentId.value = ''; elements.idLast4.value = ''; elements.yearSelect.selectedIndex = 0; elements.resultArea.classList.add('hidden'); elements.messageArea.classList.add('hidden'); });
-        
-        function renderTable(data) {
-            elements.resultBody.innerHTML = '';
-            if (data.length === 0) { elements.messageArea.textContent = "查無資料"; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); return; }
-            elements.messageArea.classList.add('hidden'); elements.resultArea.classList.remove('hidden');
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr'); tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim"; tr.style.animationDelay = `${index * 0.1}s`;
-                const fields = ["學年度", "學期", "段考", "班級", "座號", "姓名", "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", "加權平均", "考科班排", "考科校排"];
-                fields.forEach(field => {
-                    const td = document.createElement('td'); td.className = "py-4 px-6 whitespace-nowrap text-center";
-                    if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) td.classList.add("text-left", "font-medium");
-                    if (field === "加權平均") td.classList.add("font-extrabold", "text-red-600", "bg-red-50");
-                    td.textContent = row[field] || ""; tr.appendChild(td);
-                });
-                elements.resultBody.appendChild(tr);
-            });
-            elements.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        
-        function setLoadingState(isLoading) {
-            if (isLoading) { elements.loading.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); elements.messageArea.classList.add('hidden'); elements.searchBtn.disabled = true; } 
-            else { elements.loading.classList.add('hidden'); elements.searchBtn.disabled = false; }
-        }
+        els.clearBtn.addEventListener('click', () => { els.studentId.value = ''; els.idLast4.value = ''; els.yearSelect.selectedIndex = 0; els.resArea.classList.add('hidden'); els.msgArea.classList.add('hidden'); });
+        function renderTable(data) { els.resBody.innerHTML = ''; if (data.length === 0) { showMsg("查無資料", "warn"); els.resArea.classList.add('hidden'); return; } els.msgArea.classList.add('hidden'); els.resArea.classList.remove('hidden'); const cols = ["學年度", "學期", "段考", "班級", "座號", "姓名", "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", "加權平均", "考科班排", "考科校排"]; data.forEach((r, i) => { const tr = document.createElement('tr'); tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim"; tr.style.animationDelay = `${i * 0.05}s`; cols.forEach(k => { const td = document.createElement('td'); td.className = "py-4 px-6 whitespace-nowrap text-center"; if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(k)) td.classList.add("text-left", "font-medium"); if (k === "加權平均") td.classList.add("font-extrabold", "text-red-600", "bg-red-50"); td.textContent = r[k] || ""; tr.appendChild(td); }); els.resBody.appendChild(tr); }); els.resArea.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function showMsg(txt, type) { els.msgArea.textContent = txt; els.msgArea.className = `mt-6 text-center p-4 rounded-lg text-content-size font-bold ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-800'}`; els.msgArea.classList.remove('hidden'); }
+        function setLoading(b) { if (b) { els.loading.classList.remove('hidden'); els.resArea.classList.add('hidden'); els.msgArea.classList.add('hidden'); els.searchBtn.disabled = true; } else { els.loading.classList.add('hidden'); els.searchBtn.disabled = false; } }
     </script>
 </body>
 </html>
