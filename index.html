@@ -9,7 +9,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap');
-        /* 移除科技感字體，回歸經典 */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap'); /* 科技/賽車感字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap'); /* 速度感字體 */
         
         body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); background-attachment: fixed; min-height: 100vh; overflow-x: hidden; }
         
@@ -70,128 +71,155 @@
             }
         }
 
-        /* ================= 3D 閃卡特效樣式 (回歸經典虹彩版) ================= */
+        /* ================= 光驅動車大賽風格卡片 (Solar Racing Style) ================= */
         .reward-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 20000;
+            background: rgba(0,0,0,0.9); z-index: 20000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.5s;
-            backdrop-filter: blur(8px); perspective: 1000px;
+            backdrop-filter: blur(10px); perspective: 1200px;
         }
         .reward-overlay.show { opacity: 1; visibility: visible; }
 
         .poke-card {
-            width: 300px; height: 440px; border-radius: 18px; position: relative;
+            width: 320px; height: 480px; border-radius: 12px; position: relative;
             transform-style: preserve-3d; transition: transform 0.1s;
-            border: 8px solid; overflow: hidden; cursor: pointer;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            background-size: cover;
-            -webkit-user-select: none; user-select: none;
-            touch-action: none;
+            overflow: hidden; cursor: pointer;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            /* 碳纖維底紋 + 賽道感 */
+            background-color: #111;
+            background-image: 
+                linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a),
+                linear-gradient(45deg, #1a1a1a 25%, transparent 25%, transparent 75%, #1a1a1a 75%, #1a1a1a);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+            border: 4px solid #333;
+            -webkit-user-select: none; user-select: none; touch-action: none;
         }
 
-        /* 閃卡等級：金 (Legendary) - 經典金黃漸層 */
-        .poke-card.legendary {
-            border-color: #ffd700;
-            background: linear-gradient(135deg, #fceabb 0%, #f8b500 50%, #fceabb 100%);
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 0, 0, 0.4);
-        }
-        .poke-card.legendary .poke-card-inner { background: rgba(255, 215, 0, 0.1); }
+        /* 分級配色：以金屬、能源光澤為主 */
+        /* 傳說 (Legendary) - 太陽金 */
+        .poke-card.legendary { border-color: #fbbf24; box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
+        .poke-card.legendary .card-header-bg { background: linear-gradient(90deg, #b45309, #fbbf24, #b45309); }
+        
+        /* 幻之 (Mythical) - 等離子紫 */
+        .poke-card.mythical { border-color: #c084fc; box-shadow: 0 0 40px rgba(192, 132, 252, 0.6); }
+        .poke-card.mythical .card-header-bg { background: linear-gradient(90deg, #7e22ce, #d8b4fe, #7e22ce); }
+        
+        /* 一般 (Normal) - 動力藍 */
+        .poke-card.normal { border-color: #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.4); }
+        .poke-card.normal .card-header-bg { background: linear-gradient(90deg, #0369a1, #38bdf8, #0369a1); }
 
-        /* 閃卡等級：幻之 (Mythical) - 銀白漸層 */
-        .poke-card.mythical {
-            border-color: #d8b4fe;
-            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 50%, #e0e0e0 100%);
-            box-shadow: 0 0 30px rgba(216, 180, 254, 0.7);
-        }
-        .poke-card.mythical .poke-card-inner { background: rgba(216, 180, 254, 0.1); }
-
-        /* 閃卡等級：一般 (Normal) - 銅色/普通漸層 */
-        .poke-card.normal {
-            border-color: #8B4513;
-            background: linear-gradient(135deg, #E6A27C 0%, #B87333 50%, #E6A27C 100%);
-            box-shadow: 0 0 20px rgba(148, 163, 184, 0.5);
-        }
-        .poke-card.normal .poke-card-inner { background: rgba(255, 255, 255, 0.4); }
-
-        /* ★★★ 經典虹彩流光特效 ★★★ */
-        .holo-overlay {
+        /* 太陽光暈特效 (Solar Flare Overlay) */
+        .solar-overlay {
             position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            mix-blend-mode: color-dodge; 
-            background: linear-gradient(115deg, transparent 20%, rgba(255,0,0,0.5) 25%, rgba(255,255,0,0.5) 30%, rgba(0,255,0,0.5) 35%, rgba(0,255,255,0.5) 40%, rgba(0,0,255,0.5) 45%, rgba(255,0,255,0.5) 50%, transparent 60%);
-            background-size: 250% 250%;
-            opacity: 0.6; filter: brightness(1.2) contrast(1.1);
-            animation: holo-drift 3.5s linear infinite;
+            mix-blend-mode: screen;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(255,255,255,0.4) 0%, transparent 40%),
+                linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0) 50%);
+            opacity: 0.6;
+            animation: sun-glint 4s infinite linear;
         }
-        .poke-card.normal .holo-overlay { opacity: 0.3; animation: holo-drift 5s linear infinite; }
-
-        @keyframes holo-drift {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+        @keyframes sun-glint {
+            0% { background-position: -200% -200%; }
+            100% { background-position: 200% 200%; }
         }
 
-        .poke-card-inner { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 12px; position: relative; z-index: 4; }
-        .poke-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); color: #333; z-index: 7; }
+        .poke-card-inner { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 0; position: relative; z-index: 4; }
         
-        .card-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap; font-weight: bold; }
-        .tag-type { background-color: #059669; }
-        .tag-special { background-color: #4f46e5; }
+        /* 卡片頭部 - 賽車儀表板風格 */
+        .poke-header { 
+            width: 100%; padding: 12px 16px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 7; font-family: 'Russo One', sans-serif; text-transform: uppercase;
+            color: white; text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+            margin-bottom: 5px;
+        }
         
-        /* 標籤顏色微調 - 配合亮色卡片 */
-        .tag-special-legendary { background: #fbbf24; color: #000; border: 1px solid #fff; }
-        .tag-special-mythical { background: #d8b4fe; color: #000; border: 1px solid #fff; }
-        .tag-special-normal { background: #94a3b8; color: #fff; border: 1px solid #fff; }
+        .card-tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; color: white; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
 
         .poke-img-frame {
-            width: 100%; aspect-ratio: 4/3; margin-bottom: 12px;
-            background: rgba(255,255,255,0.85); border: 4px solid rgba(255,255,255,0.5);
-            border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            width: 90%; aspect-ratio: 4/3; margin: 0 auto 10px auto;
+            background: linear-gradient(to bottom, #f8fafc, #e2e8f0); /* 淺色背景凸顯寶可夢 */
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 4px; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
             z-index: 5; position: relative;
         }
-        .poke-img-content { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.4)); transition: transform 0.3s; }
-        .poke-card:hover .poke-img-content { transform: scale(1.1); }
+        
+        /* 裝飾線條 - 科技感 */
+        .tech-line {
+            position: absolute; height: 1px; background: rgba(255,255,255,0.3); width: 100%;
+        }
+        .tech-line-top { top: 5px; left: 0; }
+        .tech-line-bottom { bottom: 5px; right: 0; }
 
-        .poke-info { width: 100%; text-align: center; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 7; margin-top: auto; }
-        .poke-name { font-size: 1.4rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin-bottom: 2px; }
-        .poke-eng-name { font-size: 0.9rem; color: #64748b; font-family: 'Lora', serif; font-weight: bold; font-style: italic; margin-bottom: 5px; }
-        .poke-stars { color: #f59e0b; font-size: 0.9rem; margin-bottom: 2px; letter-spacing: 2px; text-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .poke-msg { font-size: 0.75rem; color: #475569; font-style: italic; border-top: 1px dashed #cbd5e1; padding-top: 6px; font-family: 'Noto Sans TC', sans-serif; }
+        .poke-img-content { width: 95%; height: 95%; object-fit: contain; mix-blend-mode: multiply; filter: drop-shadow(5px 5px 8px rgba(0,0,0,0.3)); transition: transform 0.3s; z-index: 2; }
+        .poke-card:hover .poke-img-content { transform: scale(1.15) rotate(-2deg); }
+
+        /* 資訊區塊 */
+        .poke-info { 
+            width: 100%; flex-grow: 1; text-align: center; 
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.6)); 
+            padding: 10px 16px; 
+            z-index: 7; display: flex; flex-direction: column; justify-content: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .poke-name { font-family: 'Russo One', sans-serif; font-size: 1.4rem; color: #fff; line-height: 1.1; margin-bottom: 2px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .poke-eng-name { font-size: 0.75rem; color: #94a3b8; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
+        .poke-stars { color: #fbbf24; font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 3px; filter: drop-shadow(0 0 5px gold); }
+        .poke-msg { font-size: 0.75rem; color: #cbd5e1; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; font-family: 'Noto Sans TC', sans-serif; }
 
         /* 物理反光 */
-        .glare {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 18px;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 60%);
-            mix-blend-mode: overlay; opacity: 0; pointer-events: none; z-index: 10;
-        }
+        .glare { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.7) 0%, transparent 60%); mix-blend-mode: overlay; opacity: 0; pointer-events: none; z-index: 20; }
 
+        /* 按鈕樣式 (光驅動賽車風) */
         .close-reward-btn {
-            margin-top: 30px; background: white; color: #333; font-weight: bold; padding: 12px 40px;
+            margin-top: 30px; 
+            background: linear-gradient(90deg, #ea580c, #ca8a04); 
+            color: white; font-weight: bold; padding: 12px 40px;
             border-radius: 50px; border: none; cursor: pointer; font-size: 1.1rem;
-            box-shadow: 0 0 20px rgba(255,255,255,0.5); transition: all 0.2s; z-index: 20001;
+            box-shadow: 0 0 15px rgba(234, 88, 12, 0.6); transition: all 0.2s; z-index: 20001;
+            font-family: 'Russo One', sans-serif; letter-spacing: 1px; text-transform: uppercase;
+            position: relative; overflow: hidden;
         }
-        .close-reward-btn:hover { transform: scale(1.05); background: #f8fafc; color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.8); }
+        .close-reward-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(234, 88, 12, 0.8); }
+        .close-reward-btn::after {
+            content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: btn-shine 2s infinite;
+        }
+        @keyframes btn-shine { 100% { left: 100%; } }
         
-        .sparkle {
-            position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 8px white, 0 0 15px gold; opacity: 0;
-            animation: sparkle-anim 1.5s linear infinite; z-index: 25;
-        }
+        .sparkle { position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 8px white, 0 0 15px gold; opacity: 0; animation: sparkle-anim 1.5s linear infinite; z-index: 25; }
         @keyframes sparkle-anim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+        
+        .text-shadow-glow { text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 215, 0, 0.6); }
     </style>
 </head>
 <body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
 
     <!-- 金卡獎勵視窗 -->
     <div id="rewardModal" class="reward-overlay">
-        <div class="flex flex-col items-center perspective-container">
-            <h2 class="text-white text-3xl md:text-5xl font-bold mb-10 animate-bounce text-center drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
-                <i class="fas fa-crown text-yellow-300 mr-2"></i>CHALLENGE CLEAR!<i class="fas fa-crown text-yellow-300 ml-2"></i>
-            </h2>
-            <div id="rewardCardContainer" class="relative"></div>
+        <div class="flex flex-col items-center perspective-container w-full max-w-lg px-4">
+            <!-- 標題與計數器 -->
+            <div class="text-center mb-6">
+                <h2 class="text-white text-3xl md:text-5xl font-bold font-['Russo_One'] tracking-wider mb-2 text-shadow-glow">
+                    MISSION COMPLETE
+                </h2>
+                <!-- 大師計數器顯示於此 -->
+                <p id="masterCountDisplay" class="text-yellow-300 text-lg md:text-xl font-bold bg-black/50 px-4 py-2 rounded-full border border-yellow-500/50 backdrop-blur-sm animate-pulse">
+                    計算中...
+                </p>
+            </div>
+
+            <!-- 卡片容器 -->
+            <div id="rewardCardContainer" class="relative mb-8"></div>
+
             <button class="close-reward-btn" onclick="closeReward()">
-                <i class="fas fa-check mr-2"></i> 收下卡片 (Claim)
+                <i class="fas fa-flag-checkered mr-2"></i> 挑戰下一回合
             </button>
-            <p id="rewardMsg" class="text-white mt-4 text-sm opacity-90 font-mono tracking-widest text-center shadow-black drop-shadow-md">STREAK 10 COMPLETED</p>
         </div>
     </div>
 
@@ -403,7 +431,6 @@
             }
         }
 
-        // 前端備援：Dictionary API 抓例句
         async function fetchExampleFallback(word) {
             try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
@@ -426,12 +453,11 @@
             const idx=el.getAttribute('data-kw-index'); const data=currentQuoteData.keywords[idx]; if(!data)return;
             document.querySelectorAll('.vocab-highlight').forEach(e=>e.classList.remove('active')); el.classList.add('active');
             
-            // 播放發音
             if(data.audio) new Audio(data.audio).play(); else playAudio(data.word);
 
             ttWord.textContent=data.word; 
             ttIpa.textContent=data.ipa ? `[${data.ipa}]` : "";
-            ttPos.textContent=data.pos || ""; // 顯示詞性
+            ttPos.textContent=data.pos || ""; 
             
             if(data.analysis){ttAnalysisContainer.classList.remove('hidden'); ttAnalysis.textContent=data.analysis;}else{ttAnalysisContainer.classList.add('hidden');}
             
@@ -450,15 +476,12 @@
                     ttDefZh.textContent="查詢中..."; ttExEn.textContent=""; ttExZh.textContent=""; ttIpa.textContent="";
                     
                     try{
-                        // 1. 呼叫後端 (Cambridge Scraper)
                         const res=await callAPI({action:"getWordInfo",word:data.word});
-                        
                         if(res.status==="success"){
                             const info=res.data; 
                             data.zh=info.def_zh; data.ex_en=info.ex_en; data.ex_zh=info.ex_zh; 
                             data.ipa=info.ipa; data.audio=info.audio; data.pos=info.pos;
                             
-                            // 2. 若後端沒抓到例句，嘗試前端備援 (DictionaryAPI)
                             if(!data.ex_en) {
                                 const fbEx = await fetchExampleFallback(data.word);
                                 if(fbEx) { data.ex_en = fbEx; data.ex_zh = "(僅供參考)"; } 
@@ -469,7 +492,6 @@
                             ttDefZh.textContent="查詢失敗"; ttLoading.classList.add('hidden');
                         }
                     }catch(e){
-                        // 後端連線失敗，用前端備援
                         const fbEx = await fetchExampleFallback(data.word);
                         if(fbEx) { 
                             data.ex_en = fbEx; data.ex_zh = ""; 
@@ -489,7 +511,7 @@
             ttExEn.textContent=data.ex_en||""; 
             ttExZh.textContent=data.ex_zh||""; 
             ttIpa.textContent=data.ipa?`[${data.ipa}]`:"";
-            ttPos.textContent=data.pos||""; // 更新詞性
+            ttPos.textContent=data.pos||""; 
             
             if(data.ex_en&&data.ex_en!==""){ttExContainer.classList.remove('hidden'); btnReadEx.style.display='block';}else{ttExContainer.classList.add('hidden'); btnReadEx.style.display='none';}
         }
@@ -513,7 +535,6 @@
 
         function nextQuestion(){
             if(gameData.length===0)return;
-            // Reset button style & text
             const nextQBtn = document.getElementById('nextQBtn');
             nextQBtn.innerHTML = '下一題 Next <i class="fas fa-arrow-right ml-2"></i>';
             nextQBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
@@ -523,7 +544,6 @@
             document.getElementById('q-word').textContent=currentQuestion.question;
             document.getElementById('q-type').textContent=currentQuestion.type;
             document.getElementById('gameAnalysis').classList.add('hidden');
-            // Hide last one hint
             document.getElementById('lastOneHint').classList.add('hidden');
             const opts=[...currentQuestion.options].sort(()=>Math.random()-0.5);
             document.getElementById('options-grid').innerHTML=opts.map(o=>`<button onclick="checkAnswer(this, '${o.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${o}</button>`).join('');
@@ -538,7 +558,6 @@
                 document.getElementById('streak-count').textContent=streak;
                 if(streak>0)document.getElementById('streak-icon').style.display='inline-block';
                 
-                // ★★★ 自動跳下一題 & 最後一題提醒 ★★★
                 if(streak === TARGET_STREAK - 1) {
                     playFeedbackAudio("Excellent! One more to go!");
                     const hint = document.getElementById('lastOneHint');
@@ -546,12 +565,11 @@
                     hint.textContent = "最後一題！加油！(Last one!)";
                     setTimeout(nextQuestion, 2000); 
                 } else if(streak === TARGET_STREAK) {
-                    showReward(); // 直接顯示獎勵 (不放煙火)
+                    showReward(); 
                 } else {
                     playFeedbackAudio("Excellent!");
-                    setTimeout(nextQuestion, 1000); // 1秒後下一題
+                    setTimeout(nextQuestion, 1000); 
                 }
-
             }else{
                 btn.classList.add('wrong'); streak=0;
                 document.getElementById('streak-count').textContent=streak;
@@ -560,7 +578,6 @@
                 document.querySelectorAll('.game-option-btn').forEach(b=>{if(b.textContent.trim()===currentQuestion.answer)b.classList.add('correct');});
                 playFeedbackAudio("Wrong answer.");
                 
-                // --- 挑戰失敗：按鈕變身 ---
                 const nextQBtn = document.getElementById('nextQBtn');
                 nextQBtn.innerHTML = '<i class="fas fa-redo-alt mr-2"></i> 再挑戰一次 (Try Again)';
                 nextQBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
@@ -569,7 +586,6 @@
         }
 
         function showReward(){
-            // 同步放煙火 + 顯示卡片
             const fwLayer = document.getElementById('fireworksLayer');
             fwLayer.innerHTML = '';
             fwLayer.classList.remove('hidden');
@@ -581,16 +597,13 @@
                 fw.style.animationDelay = Math.random()*1 + 's';
                 fwLayer.appendChild(fw);
             }
+            setTimeout(() => { fwLayer.classList.add('hidden'); }, 2000);
             
-            // 3秒後自動關閉煙火
-            setTimeout(() => { fwLayer.classList.add('hidden'); }, 3000);
-            
-            // ★增加挑戰成功人數計數
             callAPI({ action: "incrementChallengeCount" }).then(res => {
                 if(res.status === "success") {
-                    const msg = document.getElementById('rewardMsg'); 
-                    msg.innerHTML = `STREAK 10 COMPLETED<br><span class="text-cyan-300 text-lg">你是第 ${res.count} 位挑戰成功的單字大師！</span>`;
-                    document.getElementById('challengeCountNum').textContent = res.count; // Update top counter too
+                    const msg = document.getElementById('masterCountDisplay');
+                    msg.textContent = `您是第 ${res.count} 位單字大師！`;
+                    document.getElementById('challengeCountNum').textContent = res.count;
                 }
             });
 
@@ -606,13 +619,10 @@
             
             const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content" alt="${card["名稱"]}">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
             
-            // 產生星星
             let starsHtml = '';
             for(let i=0; i<star; i++) starsHtml += '<i class="fas fa-star"></i>';
 
-            // Tags Generation
             let tags = '';
-            // 根據屬性顯示對應顏色標籤
             let typeColor = "tag-default";
             if(attr.includes("草")) typeColor="tag-grass";
             else if(attr.includes("火")) typeColor="tag-fire";
@@ -623,30 +633,14 @@
             
             if(attr) tags += `<span class="card-tag ${typeColor} mr-1">${attr}</span>`;
             
-            // 特殊標籤
             if(special && special !== "一般") {
                 let spColor = special==="傳說" ? "tag-special-legendary" : "tag-special-mythical";
                 tags += `<span class="card-tag ${spColor}">${special}</span>`;
             }
 
-            // ★ 多樣化鼓勵語
-            const msgs = [
-                "每一次努力，都是通往夢想的階梯！",
-                "相信自己，你的潛力無限大！",
-                "學習的路上，你並不孤單，繼續加油！",
-                "今天的汗水，是明天成功的養分。",
-                "堅持到底，最美的風景就在頂峰。",
-                "不怕慢，只怕站。持續進步就是贏家！",
-                "你的認真，大家都看在眼裡，太棒了！",
-                "每一個單字都是開啟新世界的鑰匙。",
-                "失敗只是成功的墊腳石，勇敢挑戰吧！",
-                "為自己感到驕傲吧！你正在變得更強。",
-                "太厲害了！知識就是你的超能力。",
-                "保持這份熱情，未來掌握在你手中！"
-            ];
+            const msgs = ["每一次努力，都是通往夢想的階梯！","相信自己，你的潛力無限大！","學習的路上，你並不孤單，繼續加油！","今天的汗水，是明天成功的養分。","堅持到底，最美的風景就在頂峰。","不怕慢，只怕站。持續進步就是贏家！","你的認真，大家都看在眼裡，太棒了！","每一個單字都是開啟新世界的鑰匙。","失敗只是成功的墊腳石，勇敢挑戰吧！","為自己感到驕傲吧！你正在變得更強。","太厲害了！知識就是你的超能力。","保持這份熱情，未來掌握在你手中！"];
             const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
 
-            // 決定語音內容
             let voiceMsg = `Congratulations! You got ${engName || 'a Pokemon'}!`;
             if(card["名稱"] && card["名稱"].indexOf("超夢") !== -1) {
                 voiceMsg = "太神啦！恭喜你抽中了超夢！";
@@ -658,9 +652,7 @@
                 <div class="holo-overlay"></div>
                 <div class="poke-card-inner">
                     <div class="poke-header">
-                        <div class="flex items-center flex-wrap gap-1">
-                            ${tags}
-                        </div>
+                        <div class="flex items-center flex-wrap gap-1">${tags}</div>
                         <span class="text-red-600 font-bold font-mono text-sm">${hp}</span>
                     </div>
                     <div class="poke-img-frame">
@@ -680,20 +672,15 @@
 
             document.getElementById('rewardModal').classList.add('show');
             
-            // 3D Tilt 互動
             const activeCard = document.getElementById('activePokeCard');
             if(activeCard) {
                 const handleMove = (x, y) => {
                     const rect = activeCard.getBoundingClientRect();
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    // 計算旋轉角度
                     const rotateX = ((y - rect.top - centerY) / centerY) * -15; 
                     const rotateY = ((x - rect.left - centerX) / centerX) * 15;
-                    
                     activeCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    
-                    // 調整反光位置
                     const glare = activeCard.querySelector('.glare');
                     if(glare) {
                         glare.style.background = `radial-gradient(circle at ${x - rect.left}px ${y - rect.top}px, rgba(255,255,255,0.8) 0%, transparent 50%)`;
