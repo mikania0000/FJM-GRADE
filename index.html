@@ -264,9 +264,17 @@
         </div>
         <div class="space-y-2">
             <p class="text-sm text-gray-800 border-l-2 border-blue-400 pl-2"><span id="tt-def-zh" class="font-bold"></span> <span id="tt-def-en" class="text-gray-500 text-xs block mt-0.5"></span></p>
-            <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group">
+            
+            <!-- 例句區塊：預設載入中狀態 -->
+            <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group min-h-[40px]" id="tt-ex-container">
+                <!-- 載入動畫 (預設隱藏，動態顯示) -->
+                <div id="tt-loading" class="absolute inset-0 flex items-center justify-center bg-blue-50 bg-opacity-80 hidden">
+                    <div class="loading-spinner" style="width:16px; height:16px; border-width:2px; border-top-color:#2563eb;"></div>
+                    <span class="ml-2 text-gray-500 italic">網路字典查詢中...</span>
+                </div>
+
                 <!-- 加入例句發音按鈕 -->
-                <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors" title="朗讀例句">
+                <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors hidden" title="朗讀例句">
                     <i class="fas fa-volume-up"></i>
                 </button>
                 <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1 pr-5"></p>
@@ -460,12 +468,14 @@
 
         let quotes = [];
         let gameData = [];
-        let pokemonData = []; // ★新：儲存寶可夢資料
+        let pokemonData = []; 
         let currentQuestion = null;
         let currentQuoteData = null;
         let streak = 0;
         let isGameOpen = false;
         const TARGET_STREAK = 10;
+        // 建立單字查詢緩存，避免重複查詢
+        const wordCache = {};
 
         // UI 元素
         const rateInput = document.getElementById('speechRate');
@@ -478,14 +488,16 @@
         const ttDefEn = document.getElementById('tt-def-en');
         const ttExEn = document.getElementById('tt-ex-en');
         const ttExZh = document.getElementById('tt-ex-zh');
-        const btnReadEx = document.getElementById('btn-read-ex'); // ★新按鈕
+        const btnReadEx = document.getElementById('btn-read-ex'); 
+        const ttExContainer = document.getElementById('tt-ex-container');
+        const ttLoading = document.getElementById('tt-loading');
 
         rateInput.addEventListener('input', (e) => { rateValue.textContent = e.target.value + 'x'; });
         document.addEventListener('click', (e) => {
             if (!tooltip.contains(e.target) && !e.target.classList.contains('vocab-highlight')) hideTooltip();
         });
 
-        // ★ 新增：例句發音按鈕事件
+        // ★ 例句發音按鈕事件
         btnReadEx.addEventListener('click', (e) => {
             e.stopPropagation(); // 避免點擊按鈕關閉 tooltip
             if(ttExEn.textContent) {
@@ -498,7 +510,7 @@
             fetchYears();     
             fetchQuotes();    
             fetchGameData();  
-            fetchPokemon(); // ★新：載入寶可夢
+            fetchPokemon();
         });
 
         // ---------------- API Fetch ----------------
@@ -545,10 +557,7 @@
             } catch (e) { console.error("Fetch Pokemon Error:", e); }
         }
 
-        // ... (Quote functions: processQuoteWithKeywords, showRandomQuote, etc. omitted for brevity, keep logic same) ...
-        // ... (Game functions: toggleGame, nextQuestion, checkAnswer omitted for brevity, keep logic same) ...
-        
-        // ------------------ 縮減重複程式碼 (Quote) ------------------
+        // ------------------ Quote & Tooltip Functions ------------------
         function processQuoteWithKeywords(quoteData) {
             let processedHtml = quoteData.en;
             if (!quoteData.keywords || quoteData.keywords.length === 0) return processedHtml;
@@ -581,7 +590,7 @@
         }
         function handleWordClick(e) { e.stopPropagation(); showTooltip(e.target); }
         
-        function showTooltip(targetElement) {
+        async function showTooltip(targetElement) {
             const index = targetElement.getAttribute('data-kw-index');
             const keywordData = currentQuoteData.keywords[index];
             if (!keywordData) return;
@@ -593,22 +602,11 @@
             // ★ 自動發音單字
             playAudio(keywordData.word);
             
-            // 填充內容
+            // 先填充基本內容 (單字)
             ttWord.textContent = keywordData.word;
             ttPos.textContent = keywordData.pos || "單字";
-            ttDefZh.textContent = keywordData.zh || "";
-            ttDefEn.textContent = keywordData.en || ""; // 這邊如果沒資料會顯示單字本身
-            ttExEn.textContent = keywordData.ex_en || "";
-            ttExZh.textContent = keywordData.ex_zh || "";
             
-            // 處理例句顯示邏輯
-            if (keywordData.ex_en && keywordData.ex_en !== "Example sentence not available.") {
-                btnReadEx.style.display = 'block';
-            } else {
-                btnReadEx.style.display = 'none'; // 沒例句時隱藏發音鈕
-            }
-
-            // 定位邏輯 (保持不變)
+            // 定位 Tooltip (確保位置正確後再顯示)
             const rect = targetElement.getBoundingClientRect();
             const tooltipHeight = tooltip.offsetHeight || 200;
             const tooltipWidth = tooltip.offsetWidth || 300;
@@ -626,10 +624,70 @@
             tooltip.style.top = `${top}px`;
             tooltip.style.left = `${left}px`;
             tooltip.classList.add('show');
+
+            // ★ 檢查是否需要即時查詢 (若中文或例句為空)
+            // 這裡判斷邏輯：如果 keywordData 的 def_zh 為空 (表示本地沒資料)
+            if (!keywordData.zh || !keywordData.ex_en) {
+                // 檢查緩存
+                const cacheKey = keywordData.word.toLowerCase();
+                if (wordCache[cacheKey]) {
+                    updateTooltipContent(wordCache[cacheKey]);
+                } else {
+                    // 顯示載入動畫
+                    ttLoading.classList.remove('hidden');
+                    ttExContainer.classList.remove('hidden');
+                    btnReadEx.style.display = 'none';
+                    ttDefZh.textContent = "查詢中...";
+                    ttExEn.textContent = "";
+                    ttExZh.textContent = "";
+
+                    // 呼叫後端 API
+                    try {
+                        const json = await callAPI({ action: "getWordInfo", word: keywordData.word });
+                        if (json.status === "success") {
+                            // 更新資料並存入緩存
+                            const newData = json.data;
+                            // 把查到的資料合併回 keywordData，避免重複查
+                            keywordData.zh = newData.def_zh;
+                            keywordData.ex_en = newData.ex_en;
+                            keywordData.ex_zh = newData.ex_zh;
+                            wordCache[cacheKey] = keywordData; // 存入緩存
+                            updateTooltipContent(keywordData);
+                        } else {
+                            ttDefZh.textContent = "查詢失敗";
+                            ttLoading.classList.add('hidden');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        ttDefZh.textContent = "網路錯誤";
+                        ttLoading.classList.add('hidden');
+                    }
+                }
+            } else {
+                // 資料已存在，直接顯示
+                updateTooltipContent(keywordData);
+            }
         }
+
+        function updateTooltipContent(data) {
+            ttLoading.classList.add('hidden');
+            ttDefZh.textContent = data.zh || "無中文解釋";
+            ttDefEn.textContent = ""; 
+            ttExEn.textContent = data.ex_en || "";
+            ttExZh.textContent = data.ex_zh || "";
+            
+            if (data.ex_en && data.ex_en !== "No example found in dictionary.") {
+                ttExContainer.classList.remove('hidden');
+                btnReadEx.style.display = 'block';
+            } else {
+                ttExContainer.classList.add('hidden');
+                btnReadEx.style.display = 'none';
+            }
+        }
+
         function hideTooltip() { tooltip.classList.remove('show'); document.querySelectorAll('.vocab-highlight').forEach(el => el.classList.remove('active')); }
 
-        // ------------------ 遊戲功能 ------------------
+        // ... (Game functions omitted for brevity, logic remains same) ...
         function toggleGame() {
             isGameOpen = !isGameOpen;
             const content = document.getElementById('gameContent');
@@ -688,29 +746,19 @@
             }
         }
 
-        // ------------------ 金卡獎勵功能 (更新版) ------------------
+        // ... (Reward functions omitted for brevity, logic remains same) ...
         function showReward() {
             if (pokemonData.length === 0) {
-                // 若無資料，使用預設 (fallback)
-                renderRewardCard({
-                    "名稱": "English Master",
-                    "圖片": "", 
-                    "星等": 5,
-                    "特殊": "特殊"
-                });
+                renderRewardCard({ "名稱": "English Master", "圖片": "", "星等": 5, "特殊": "特殊" });
             } else {
-                // 隨機抽一張
                 const randIndex = Math.floor(Math.random() * pokemonData.length);
                 const card = pokemonData[randIndex];
                 renderRewardCard(card);
             }
-
             setTimeout(() => {
                 const modal = document.getElementById('rewardModal');
                 modal.classList.add('show');
                 playFeedbackAudio("Congratulations! You got a Pokemon card!");
-                
-                // 動畫
                 const cardElem = document.querySelector('.poke-card');
                 for(let i=0; i<5; i++) { createSparkle(cardElem); }
             }, 800); 
@@ -719,123 +767,47 @@
         function renderRewardCard(cardData) {
             const container = document.getElementById('rewardCardContainer');
             const star = parseInt(cardData["星等"]) || 3;
-            
-            // 判斷等級：5星=金, 4星=銀, 其他=銅
-            let tierClass = "bronze";
-            let hp = "60 HP";
-            if (star >= 5) { tierClass = "gold"; hp = "120 HP"; }
-            else if (star === 4) { tierClass = "silver"; hp = "90 HP"; }
-            
-            // 處理圖片：如果沒有圖片網址，用 icon 代替
+            let tierClass = "bronze"; let hp = "60 HP";
+            if (star >= 5) { tierClass = "gold"; hp = "120 HP"; } else if (star === 4) { tierClass = "silver"; hp = "90 HP"; }
             let imgContent = '';
-            if (cardData["圖片"] && cardData["圖片"].startsWith('http')) {
-                imgContent = `<img src="${cardData["圖片"]}" class="poke-img-content" alt="${cardData["名稱"]}">`;
-            } else {
-                imgContent = `<i class="fas fa-dragon poke-img-placeholder animate-pulse"></i>`;
-            }
-
+            if (cardData["圖片"] && cardData["圖片"].startsWith('http')) { imgContent = `<img src="${cardData["圖片"]}" class="poke-img-content" alt="${cardData["名稱"]}">`; } 
+            else { imgContent = `<i class="fas fa-dragon poke-img-placeholder animate-pulse"></i>`; }
             const html = `
-            <div class="poke-card ${tierClass}">
-                <div class="poke-card-inner">
-                    <div class="poke-header">
-                        <span>${cardData["特殊"] || "一般"}</span>
-                        <span class="text-red-600 font-bold">${hp}</span>
-                    </div>
-                    <div class="poke-img-frame">
-                        ${imgContent}
-                    </div>
-                    <div class="text-center w-full">
-                        <h3 class="text-xl font-bold">${cardData["名稱"]}</h3>
-                        <p class="text-xs text-gray-700 italic border-b border-gray-400 pb-1 mb-1">Star Rank: ${star}</p>
-                        <div class="text-left text-xs px-2 text-gray-800 font-medium">
-                             <div class="flex justify-between mb-1">
-                                <span><i class="fas fa-star text-yellow-500"></i> Vocabulary Hit</span>
-                                <span>${star * 10}+</span>
-                            </div>
-                            <p class="text-gray-700 transform scale-90 origin-left leading-tight">
-                                This card is proof of your English mastery. Keep learning!
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-            
+            <div class="poke-card ${tierClass}"><div class="poke-card-inner"><div class="poke-header"><span>${cardData["特殊"] || "一般"}</span><span class="text-red-600 font-bold">${hp}</span></div><div class="poke-img-frame">${imgContent}</div><div class="text-center w-full"><h3 class="text-xl font-bold">${cardData["名稱"]}</h3><p class="text-xs text-gray-700 italic border-b border-gray-400 pb-1 mb-1">Star Rank: ${star}</p><div class="text-left text-xs px-2 text-gray-800 font-medium"><div class="flex justify-between mb-1"><span><i class="fas fa-star text-yellow-500"></i> Vocabulary Hit</span><span>${star * 10}+</span></div><p class="text-gray-700 transform scale-90 origin-left leading-tight">This card is proof of your English mastery. Keep learning!</p></div></div></div></div>`;
             container.innerHTML = html;
         }
 
         function closeReward() {
             const modal = document.getElementById('rewardModal');
             modal.classList.remove('show');
-            streak = 0; 
-            document.getElementById('streak-count').textContent = streak;
-            document.getElementById('streak-icon').style.display = 'none';
+            streak = 0; document.getElementById('streak-count').textContent = streak; document.getElementById('streak-icon').style.display = 'none';
             nextQuestion();
         }
 
         function createSparkle(parent) {
-            const star = document.createElement('div');
-            star.classList.add('sparkle');
-            const size = Math.random() * 20 + 10;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.animationDelay = `${Math.random()}s`;
-            parent.appendChild(star);
+            const star = document.createElement('div'); star.classList.add('sparkle');
+            const size = Math.random() * 20 + 10; star.style.width = `${size}px`; star.style.height = `${size}px`;
+            star.style.top = `${Math.random() * 100}%`; star.style.left = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random()}s`; parent.appendChild(star);
         }
 
-        // ------------------ 語音/系統功能 (保留不變) ------------------
-        function playAudio(text) {
-            try { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = parseFloat(rateInput.value) || 1.0; window.speechSynthesis.speak(u); } catch (err) { console.log("Audio playback failed:", err); }
-        }
+        // ... (System functions omitted for brevity, logic remains same) ...
+        function playAudio(text) { try { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = parseFloat(rateInput.value) || 1.0; window.speechSynthesis.speak(u); } catch (err) { console.log("Audio playback failed:", err); } }
         function playCurrentGameAudio() { if(!currentQuestion) return; playAudio(currentQuestion.sound || currentQuestion.question); }
         function speakQuote() { if (!currentQuoteData) return; playAudio(currentQuoteData.en); }
         function playFeedbackAudio(text) { setTimeout(() => { const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 1.1; window.speechSynthesis.speak(u); }, 200); }
-        async function fetchYears() {
-            try {
-                const json = await callAPI({ action: "getYears" });
-                const select = document.getElementById('yearSelect');
-                if (json.status === "success") {
-                    select.innerHTML = '<option value="" disabled selected>請選擇學年度</option>';
-                    if (json.data.length === 0) select.innerHTML += '<option value="" disabled>無資料</option>';
-                    json.data.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; select.appendChild(opt); });
-                } else { document.getElementById('messageArea').textContent = "無法載入學年度"; }
-            } catch (error) { console.error(error); }
-        }
-        // ... (Search form logic remains same) ...
+        async function fetchYears() { try { const json = await callAPI({ action: "getYears" }); const select = document.getElementById('yearSelect'); if (json.status === "success") { select.innerHTML = '<option value="" disabled selected>請選擇學年度</option>'; if (json.data.length === 0) select.innerHTML += '<option value="" disabled>無資料</option>'; json.data.forEach(y => { const opt = document.createElement('option'); opt.value = y; opt.textContent = y; select.appendChild(opt); }); } else { document.getElementById('messageArea').textContent = "無法載入學年度"; } } catch (error) { console.error(error); } }
         const elements = { studentId: document.getElementById('studentId'), idLast4: document.getElementById('idLast4'), toggleIdVisibility: document.getElementById('toggleIdVisibility'), yearSelect: document.getElementById('yearSelect'), semesterSelect: document.getElementById('semesterSelect'), examSelect: document.getElementById('examSelect'), searchBtn: document.getElementById('searchBtn'), clearBtn: document.getElementById('clearBtn'), loading: document.getElementById('loading'), messageArea: document.getElementById('messageArea'), resultArea: document.getElementById('resultArea'), resultBody: document.getElementById('resultBody') };
         elements.toggleIdVisibility.addEventListener('click', () => { const input = elements.idLast4; const icon = elements.toggleIdVisibility.querySelector('i'); if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); } else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); } });
         elements.searchBtn.addEventListener('click', async () => {
             const studentId = elements.studentId.value.trim(); const idLast4 = elements.idLast4.value.trim(); const year = elements.yearSelect.value;
             if (!studentId || !idLast4 || !year) { elements.messageArea.textContent = "請輸入完整查詢資訊"; elements.messageArea.classList.remove('hidden'); return; }
             setLoadingState(true);
-            try {
-                const json = await callAPI({ action: "search", studentId, idLast4, year, semester: elements.semesterSelect.value, exam: elements.examSelect.value });
-                if (json.status === "success") renderTable(json.data); else { elements.messageArea.textContent = json.message; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); }
-            } catch (error) { elements.messageArea.textContent = "連線錯誤"; elements.messageArea.classList.remove('hidden'); } finally { setLoadingState(false); }
+            try { const json = await callAPI({ action: "search", studentId, idLast4, year, semester: elements.semesterSelect.value, exam: elements.examSelect.value }); if (json.status === "success") renderTable(json.data); else { elements.messageArea.textContent = json.message; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); } } catch (error) { elements.messageArea.textContent = "連線錯誤"; elements.messageArea.classList.remove('hidden'); } finally { setLoadingState(false); }
         });
         elements.clearBtn.addEventListener('click', () => { elements.studentId.value = ''; elements.idLast4.value = ''; elements.yearSelect.selectedIndex = 0; elements.resultArea.classList.add('hidden'); elements.messageArea.classList.add('hidden'); });
-        function renderTable(data) {
-            elements.resultBody.innerHTML = '';
-            if (data.length === 0) { elements.messageArea.textContent = "查無資料"; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); return; }
-            elements.messageArea.classList.add('hidden'); elements.resultArea.classList.remove('hidden');
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr'); tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim"; tr.style.animationDelay = `${index * 0.1}s`;
-                const fields = ["學年度", "學期", "段考", "班級", "座號", "姓名", "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", "加權平均", "考科班排", "考科校排"];
-                fields.forEach(field => {
-                    const td = document.createElement('td'); td.className = "py-4 px-6 whitespace-nowrap text-center";
-                    if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) td.classList.add("text-left", "font-medium");
-                    if (field === "加權平均") td.classList.add("font-extrabold", "text-red-600", "bg-red-50");
-                    td.textContent = row[field] || ""; tr.appendChild(td);
-                });
-                elements.resultBody.appendChild(tr);
-            });
-            elements.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        function setLoadingState(isLoading) {
-            if (isLoading) { elements.loading.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); elements.messageArea.classList.add('hidden'); elements.searchBtn.disabled = true; } 
-            else { elements.loading.classList.add('hidden'); elements.searchBtn.disabled = false; }
-        }
+        function renderTable(data) { elements.resultBody.innerHTML = ''; if (data.length === 0) { elements.messageArea.textContent = "查無資料"; elements.messageArea.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); return; } elements.messageArea.classList.add('hidden'); elements.resultArea.classList.remove('hidden'); data.forEach((row, index) => { const tr = document.createElement('tr'); tr.className = "border-b border-gray-200 hover:bg-blue-50 transition duration-150 table-row-anim"; tr.style.animationDelay = `${index * 0.1}s`; const fields = ["學年度", "學期", "段考", "班級", "座號", "姓名", "國語", "英文", "數學", "歷史", "地理", "公民", "自然", "地科", "加權平均", "考科班排", "考科校排"]; fields.forEach(field => { const td = document.createElement('td'); td.className = "py-4 px-6 whitespace-nowrap text-center"; if (["學年度", "學期", "段考", "班級", "座號", "姓名"].includes(field)) td.classList.add("text-left", "font-medium"); if (field === "加權平均") td.classList.add("font-extrabold", "text-red-600", "bg-red-50"); td.textContent = row[field] || ""; tr.appendChild(td); }); elements.resultBody.appendChild(tr); }); elements.resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function setLoadingState(isLoading) { if (isLoading) { elements.loading.classList.remove('hidden'); elements.resultArea.classList.add('hidden'); elements.messageArea.classList.add('hidden'); elements.searchBtn.disabled = true; } else { elements.loading.classList.add('hidden'); elements.searchBtn.disabled = false; } }
     </script>
 </body>
 </html>
