@@ -507,6 +507,33 @@
             if(star>=5) { cls="gold"; hp="120 HP"; } else if(star===4) { cls="silver"; hp="90 HP"; }
             const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
             
+            // ★ 多樣化鼓勵語
+            const msgs = [
+                "每一次努力，都是通往夢想的階梯！",
+                "相信自己，你的潛力無限大！",
+                "學習的路上，你並不孤單，繼續加油！",
+                "今天的汗水，是明天成功的養分。",
+                "堅持到底，最美的風景就在頂峰。",
+                "不怕慢，只怕站。持續進步就是贏家！",
+                "你的認真，大家都看在眼裡，太棒了！",
+                "每一個單字都是開啟新世界的鑰匙。",
+                "失敗只是成功的墊腳石，勇敢挑戰吧！",
+                "為自己感到驕傲吧！你正在變得更強。",
+                "太厲害了！知識就是你的超能力。",
+                "保持這份熱情，未來掌握在你手中！"
+            ];
+            const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+
+            // 決定語音內容
+            let voiceMsg = "Congratulations! You got a Pokemon card!";
+            // 檢查卡片名稱是否包含「超夢」
+            if (card["名稱"] && card["名稱"].indexOf("超夢") !== -1) {
+                voiceMsg = "太神啦！恭喜你抽中了超夢！";
+            } else {
+                // 如果不是超夢，也可以隨機唸一句鼓勵語 (可選)
+                // voiceMsg = randomMsg; 
+            }
+
             document.getElementById('rewardCardContainer').innerHTML = `
             <div class="poke-card ${cls}">
                 <div class="poke-card-inner">
@@ -526,12 +553,26 @@
                                 <span><i class="fas fa-star text-yellow-500"></i> Vocabulary Hit</span>
                                 <span>${star*10}+</span>
                             </div>
-                            <p class="text-gray-700 transform scale-90 origin-left leading-tight">Card collected!</p>
+                            <p class="text-gray-700 transform scale-90 origin-left leading-tight">${randomMsg}</p>
                         </div>
                     </div>
                 </div>
             </div>`;
-            setTimeout(() => { document.getElementById('rewardModal').classList.add('show'); playFeedbackAudio("Congratulations!"); const ce = document.querySelector('.poke-card'); for(let i=0;i<5;i++) { const s = document.createElement('div'); s.className = 'sparkle'; const sz = Math.random()*20+10; s.style.width=`${sz}px`; s.style.height=`${sz}px`; s.style.top=`${Math.random()*100}%`; s.style.left=`${Math.random()*100}%`; s.style.animationDelay=`${Math.random()}s`; ce.appendChild(s); } }, 800);
+            
+            setTimeout(() => { 
+                document.getElementById('rewardModal').classList.add('show'); 
+                playFeedbackAudio(voiceMsg); // 播放語音
+                const ce = document.querySelector('.poke-card'); 
+                for(let i=0;i<5;i++) { 
+                    const s = document.createElement('div'); 
+                    s.className = 'sparkle'; 
+                    const sz = Math.random()*20+10; 
+                    s.style.width=`${sz}px`; s.style.height=`${sz}px`; 
+                    s.style.top=`${Math.random()*100}%`; s.style.left=`${Math.random()*100}%`; 
+                    s.style.animationDelay=`${Math.random()}s`; 
+                    ce.appendChild(s); 
+                } 
+            }, 800);
         }
         function closeReward() {
             document.getElementById('rewardModal').classList.remove('show');
@@ -540,7 +581,18 @@
         }
         function playAudio(t) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=parseFloat(rateInput.value)||1.0; window.speechSynthesis.speak(u); }
         function speakQuote() { if(currentQuoteData) playAudio(currentQuoteData.en); }
-        function playFeedbackAudio(t) { setTimeout(()=>{const u=new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=1.1; window.speechSynthesis.speak(u);},200); }
+        
+        // ★ 更新後的 playFeedbackAudio (支援中文偵測)
+        function playFeedbackAudio(t) { 
+            setTimeout(()=>{
+                const u=new SpeechSynthesisUtterance(t); 
+                // 如果文字包含中文，使用中文語音
+                u.lang = /[\u4e00-\u9fa5]/.test(t) ? 'zh-TW' : 'en-US';
+                u.rate=1.1; 
+                window.speechSynthesis.speak(u);
+            },200); 
+        }
+        
         function playCurrentGameAudio() { if(currentQuestion) playAudio(currentQuestion.sound || currentQuestion.question); }
         async function fetchYears() { try { const json = await callAPI({ action: "getYears" }); const sel = document.getElementById('yearSelect'); if (json.status === "success") { sel.innerHTML = '<option value="" disabled selected>請選擇學年度</option>'; if(json.data.length===0) sel.innerHTML+='<option value="" disabled>無資料</option>'; json.data.forEach(y => { const o = document.createElement('option'); o.value=y; o.textContent=y; sel.appendChild(o); }); } } catch (e) { console.error(e); } }
         const els = { studentId: document.getElementById('studentId'), idLast4: document.getElementById('idLast4'), toggleId: document.getElementById('toggleIdVisibility'), yearSelect: document.getElementById('yearSelect'), semSelect: document.getElementById('semesterSelect'), examSelect: document.getElementById('examSelect'), searchBtn: document.getElementById('searchBtn'), clearBtn: document.getElementById('clearBtn'), loading: document.getElementById('loading'), msgArea: document.getElementById('messageArea'), resArea: document.getElementById('resultArea'), resBody: document.getElementById('resultBody') };
