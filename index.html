@@ -111,8 +111,12 @@
 
         .poke-card-inner { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 12px; position: relative; z-index: 2; }
         .poke-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-        .card-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; color: white; background: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
+        /* 標籤樣式設定 */
+        .card-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap; }
+        .tag-type { background-color: #059669; /* Emerald 600 - 屬性用綠色系 */ }
+        .tag-special { background-color: #4f46e5; /* Indigo 600 - 特殊用藍紫色系 */ }
+
         .poke-img-frame {
             width: 100%; aspect-ratio: 4/3; margin-bottom: 12px;
             background: rgba(255,255,255,0.8); border: 4px solid rgba(255,255,255,0.5);
@@ -431,7 +435,7 @@
                     hint.textContent = "最後一題！加油！(Last one!)";
                     setTimeout(nextQuestion, 2000); 
                 } else if(streak === TARGET_STREAK) {
-                    showReward(); // 直接顯示卡片 (不放煙火)
+                    showReward(); // 直接顯示獎勵 (不放煙火)
                 } else {
                     playFeedbackAudio("Excellent!");
                     setTimeout(nextQuestion, 1000); // 1秒後下一題
@@ -448,32 +452,37 @@
         }
 
         function showReward(){
-            // 若無寶可夢資料，顯示預設卡 (Master Ball)
+            // 嘗試取卡片，若無資料則用預設
             const card = pokemonData.length ? pokemonData[Math.floor(Math.random()*pokemonData.length)] : {"名稱":"Master","圖片":"","星等":5,"特殊":"傳說","英文名稱":"Master Ball"};
             const star = parseInt(card["星等"])||3;
-            const type = card["屬性"]||"";
-            const special = card["特殊"]||"一般";
+            const attr = card["屬性"] || ""; // Default if empty? or empty string. Sheet has "草" etc.
+            const special = card["特殊"] || "";
             const engName = card["英文名稱"] || "";
 
-            // 分級樣式：傳說/特殊 -> 金，幻之 -> 銀 (這裡用 mythical 樣式)，其他 -> 銅
+            // 分級樣式
             let cls="normal", hp="60 HP";
             if(special==="傳說" || special==="特殊") { cls="legendary"; hp="150 HP"; }
             else if(special==="幻之") { cls="mythical"; hp="120 HP"; }
             
             const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content" alt="${card["名稱"]}">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
             
+            // 產生星星
             let starsHtml = '';
             for(let i=0; i<star; i++) starsHtml += '<i class="fas fa-star"></i>';
+
+            // Tags Generation
+            let tags = '';
+            if(attr) tags += `<span class="card-tag tag-type mr-1">${attr}</span>`;
+            if(special && special !== "一般") tags += `<span class="card-tag tag-special">${special}</span>`;
 
             document.getElementById('rewardCardContainer').innerHTML = `
             <div id="activePokeCard" class="poke-card ${cls}">
                 <div class="poke-card-inner">
                     <div class="poke-header">
-                        <div class="flex items-center">
-                            ${type ? `<span class="card-tag mr-2">${type}</span>` : ''}
-                            <span class="text-sm opacity-80">${special}</span>
+                        <div class="flex items-center flex-wrap gap-1">
+                            ${tags}
                         </div>
-                        <span class="text-red-600 font-bold font-mono">${hp}</span>
+                        <span class="text-red-600 font-bold font-mono text-sm">${hp}</span>
                     </div>
                     <div class="poke-img-frame">
                         <div class="glare"></div>
@@ -496,7 +505,7 @@
             }
             playFeedbackAudio(voiceMsg);
 
-            // 3D 閃卡特效 (Tilt Effect)
+            // 3D Tilt 互動
             const activeCard = document.getElementById('activePokeCard');
             if(activeCard) {
                 activeCard.addEventListener('mousemove', (e) => {
