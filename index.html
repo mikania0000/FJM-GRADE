@@ -290,6 +290,10 @@
                         英文單字挑戰
                         <span class="ml-2 text-sm text-red-500 font-bold hidden md:inline">國中1200單字挑戰(全對抽寶可夢)</span>
                         <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Challenge</span>
+                        <span id="globalChallengeCount" class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full flex items-center hidden mt-1 md:mt-0">
+                            <i class="fas fa-trophy text-yellow-600 mr-1"></i>
+                            <span id="challengeCountNum">0</span> 人已通關
+                        </span>
                     </h3>
                     <i class="fas fa-chevron-down text-gray-400 transform transition-transform duration-300" id="gameToggleIcon"></i>
                 </div>
@@ -379,7 +383,10 @@
         document.addEventListener('click', (e)=>{if(!tooltip.contains(e.target) && !e.target.classList.contains('vocab-highlight')) hideTooltip();});
         btnReadEx.addEventListener('click', (e)=>{e.stopPropagation(); if(ttExEn.textContent) playAudio(ttExEn.textContent);});
 
-        window.addEventListener('load', ()=>{fetchYears(); fetchQuotes(); fetchGameData(); fetchPokemon();});
+        window.addEventListener('load', ()=>{
+            fetchYears(); fetchQuotes(); fetchGameData(); fetchPokemon();
+            fetchChallengeCount(); // Initial fetch
+        });
 
         async function callAPI(payload) {
             const res = await fetch(GAS_URL, {method:'POST', redirect:'follow', referrerPolicy:'no-referrer', headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)});
@@ -391,6 +398,7 @@
         async function fetchQuotes(){try{const res=await callAPI({action:"getQuotes"});if(res.status==="success"&&res.data.length>0){quotes=res.data;showRandomQuote();}else{document.getElementById('dailyQuote').innerHTML='<p class="text-red-500">暫無名言資料</p>';}}catch(e){console.error(e);}}
         async function fetchGameData(){try{const res=await callAPI({action:"getGameData"});if(res.status==="success"&&res.data.length>0){gameData=res.data;}}catch(e){console.error(e);}}
         async function fetchPokemon(){try{const res=await callAPI({action:"getPokemon"});if(res.status==="success")pokemonData=res.data;}catch(e){console.error(e);}}
+        async function fetchChallengeCount(){try{const res=await callAPI({action:"getChallengeCount"});if(res.status==="success"){document.getElementById('challengeCountNum').textContent=res.count; document.getElementById('globalChallengeCount').classList.remove('hidden');}}catch(e){console.error(e);}}
 
         function processQuoteWithKeywords(data){
             let html=data.en; if(!data.keywords||data.keywords.length===0)return html;
@@ -418,7 +426,6 @@
             }
         }
 
-        // 前端備援：Dictionary API 抓例句
         async function fetchExampleFallback(word) {
             try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
@@ -441,12 +448,11 @@
             const idx=el.getAttribute('data-kw-index'); const data=currentQuoteData.keywords[idx]; if(!data)return;
             document.querySelectorAll('.vocab-highlight').forEach(e=>e.classList.remove('active')); el.classList.add('active');
             
-            // 播放發音
             if(data.audio) new Audio(data.audio).play(); else playAudio(data.word);
 
             ttWord.textContent=data.word; 
             ttIpa.textContent=data.ipa ? `[${data.ipa}]` : "";
-            ttPos.textContent=data.pos || ""; // 顯示詞性
+            ttPos.textContent=data.pos || ""; 
             
             if(data.analysis){ttAnalysisContainer.classList.remove('hidden'); ttAnalysis.textContent=data.analysis;}else{ttAnalysisContainer.classList.add('hidden');}
             
@@ -465,15 +471,12 @@
                     ttDefZh.textContent="查詢中..."; ttExEn.textContent=""; ttExZh.textContent=""; ttIpa.textContent="";
                     
                     try{
-                        // 1. 呼叫後端 (Cambridge Scraper)
                         const res=await callAPI({action:"getWordInfo",word:data.word});
-                        
                         if(res.status==="success"){
                             const info=res.data; 
                             data.zh=info.def_zh; data.ex_en=info.ex_en; data.ex_zh=info.ex_zh; 
                             data.ipa=info.ipa; data.audio=info.audio; data.pos=info.pos;
                             
-                            // 2. 若後端沒抓到例句，嘗試前端備援 (DictionaryAPI)
                             if(!data.ex_en) {
                                 const fbEx = await fetchExampleFallback(data.word);
                                 if(fbEx) { data.ex_en = fbEx; data.ex_zh = "(僅供參考)"; } 
@@ -484,7 +487,6 @@
                             ttDefZh.textContent="查詢失敗"; ttLoading.classList.add('hidden');
                         }
                     }catch(e){
-                        // 後端連線失敗，用前端備援
                         const fbEx = await fetchExampleFallback(data.word);
                         if(fbEx) { 
                             data.ex_en = fbEx; data.ex_zh = ""; 
@@ -504,7 +506,7 @@
             ttExEn.textContent=data.ex_en||""; 
             ttExZh.textContent=data.ex_zh||""; 
             ttIpa.textContent=data.ipa?`[${data.ipa}]`:"";
-            ttPos.textContent=data.pos||""; // 更新詞性
+            ttPos.textContent=data.pos||""; 
             
             if(data.ex_en&&data.ex_en!==""){ttExContainer.classList.remove('hidden'); btnReadEx.style.display='block';}else{ttExContainer.classList.add('hidden'); btnReadEx.style.display='none';}
         }
@@ -579,7 +581,6 @@
         }
 
         function showReward(){
-            // 煙火
             const fwLayer = document.getElementById('fireworksLayer');
             fwLayer.innerHTML = '';
             fwLayer.classList.remove('hidden');
@@ -591,12 +592,13 @@
                 fw.style.animationDelay = Math.random()*1 + 's';
                 fwLayer.appendChild(fw);
             }
+            setTimeout(() => { fwLayer.classList.add('hidden'); }, 3000);
             
-            // 計數器
             callAPI({ action: "incrementChallengeCount" }).then(res => {
                 if(res.status === "success") {
                     const msg = document.getElementById('rewardMsg'); 
                     msg.innerHTML = `STREAK 10 COMPLETED<br><span class="text-cyan-300 text-lg">你是第 ${res.count} 位挑戰成功的單字大師！</span>`;
+                    document.getElementById('challengeCountNum').textContent = res.count; // Update top counter too
                 }
             });
 
