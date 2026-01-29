@@ -74,7 +74,7 @@
         /* ================= 科技風閃卡 (Tech/Sci-Fi Card) ================= */
         .reward-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 20000;
+            background: rgba(0,0,0,0.95); z-index: 20000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.5s;
             backdrop-filter: blur(15px); perspective: 1200px;
@@ -107,19 +107,16 @@
 
         /* 傳說 (Legendary) - 黃金數據流 */
         .poke-card.legendary { box-shadow: 0 0 50px rgba(255, 215, 0, 0.4); border-color: #fbbf24; }
-        .poke-card.legendary .card-glow { box-shadow: 0 0 15px #fbbf24, inset 0 0 15px #fbbf24; }
         .poke-card.legendary .scanline { background: linear-gradient(to bottom, transparent, rgba(255, 215, 0, 0.2), transparent); }
         .poke-card.legendary .poke-name { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
 
         /* 幻之 (Mythical) - 紫色能量 */
         .poke-card.mythical { box-shadow: 0 0 50px rgba(192, 38, 211, 0.4); border-color: #c026d3; }
-        .poke-card.mythical .card-glow { box-shadow: 0 0 15px #c026d3, inset 0 0 15px #c026d3; }
         .poke-card.mythical .scanline { background: linear-gradient(to bottom, transparent, rgba(192, 38, 211, 0.2), transparent); }
         .poke-card.mythical .poke-name { color: #e879f9; text-shadow: 0 0 10px rgba(232, 121, 249, 0.8); }
 
         /* 一般 (Normal) - 青色科技 */
         .poke-card.normal { box-shadow: 0 0 50px rgba(6, 182, 212, 0.3); border-color: #06b6d4; }
-        .poke-card.normal .card-glow { box-shadow: 0 0 15px #06b6d4, inset 0 0 15px #06b6d4; }
         .poke-card.normal .scanline { background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.2), transparent); }
         .poke-card.normal .poke-name { color: #22d3ee; text-shadow: 0 0 10px rgba(34, 211, 238, 0.8); }
 
@@ -130,27 +127,25 @@
         }
         @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
 
-        /* 內部排版 */
-        .poke-card-inner { 
-            width: 100%; height: 100%; 
-            display: flex; flex-direction: column; 
-            padding: 16px; position: relative; z-index: 4; 
+        /* ★★★ 全像雷射紋理 (Holo Foil) ★★★ */
+        .holo-overlay {
+            position: absolute; inset: 0; z-index: 6; pointer-events: none;
+            mix-blend-mode: color-dodge; 
+            background: linear-gradient(105deg, transparent 20%, rgba(255, 0, 0, 0.4) 30%, rgba(255, 255, 0, 0.4) 40%, rgba(0, 255, 0, 0.4) 50%, rgba(0, 255, 255, 0.4) 60%, rgba(0, 0, 255, 0.4) 70%, rgba(255, 0, 255, 0.4) 80%, transparent 90%);
+            background-size: 200% 200%;
+            opacity: 0.7; filter: contrast(1.3) brightness(1.2);
+            animation: holo-shimmer 3s linear infinite;
         }
+        .poke-card.legendary .holo-overlay { opacity: 0.9; animation-duration: 2.5s; }
+        .poke-card.normal .holo-overlay { opacity: 0.4; animation-duration: 5s; }
 
-        .poke-header { 
-            width: 100%; display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 10px; z-index: 7; 
-            font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
-        }
+        @keyframes holo-shimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* 內部排版 */
+        .poke-card-inner { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 16px; position: relative; z-index: 4; }
+        .poke-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; z-index: 7; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
         
-        /* 科技感標籤 */
-        .card-tag { 
-            font-size: 0.6rem; padding: 2px 8px; 
-            color: white; text-transform: uppercase; font-weight: 700;
-            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 25%); /* 斜角設計 */
-            border-left: 2px solid rgba(255,255,255,0.5);
-            font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;
-        }
+        .card-tag { font-size: 0.6rem; padding: 2px 8px; color: white; text-transform: uppercase; font-weight: 700; clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 25%); border-left: 2px solid rgba(255,255,255,0.5); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
         .tag-grass { background: linear-gradient(90deg, #064e3b, #10b981); } 
         .tag-fire { background: linear-gradient(90deg, #7f1d1d, #ef4444); }  
         .tag-water { background: linear-gradient(90deg, #1e3a8a, #3b82f6); } 
@@ -168,36 +163,22 @@
             width: 100%; aspect-ratio: 4/3; margin-bottom: 15px;
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
             position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-            z-index: 5;
-            /* 四角裝飾 */
-            background-image: 
-                linear-gradient(to right, #fff 1px, transparent 1px),
-                linear-gradient(to bottom, #fff 1px, transparent 1px);
-            background-size: 10px 10px;
-            background-position: 0 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8); z-index: 5;
+            background-image: linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px);
+            background-size: 10px 10px; background-position: 0 0;
         }
-        /* 圖片框角落裝飾線 */
-        .frame-corner {
-            position: absolute; width: 10px; height: 10px; border: 2px solid rgba(255,255,255,0.5);
-            pointer-events: none;
-        }
+        .frame-corner { position: absolute; width: 10px; height: 10px; border: 2px solid rgba(255,255,255,0.5); pointer-events: none; }
         .fc-tl { top: 2px; left: 2px; border-right: 0; border-bottom: 0; }
         .fc-tr { top: 2px; right: 2px; border-left: 0; border-bottom: 0; }
         .fc-bl { bottom: 2px; left: 2px; border-right: 0; border-top: 0; }
         .fc-br { bottom: 2px; right: 2px; border-left: 0; border-top: 0; }
 
-        .poke-img-content { 
-            width: 90%; height: 90%; object-fit: contain; 
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); 
-            transition: transform 0.3s; z-index: 2;
-        }
+        .poke-img-content { width: 90%; height: 90%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); transition: transform 0.3s; z-index: 2; }
         .poke-card:hover .poke-img-content { transform: scale(1.15) translateZ(20px); }
 
         /* 資訊區塊 */
         .poke-info { 
-            width: 100%; text-align: left; 
-            background: rgba(15, 23, 42, 0.8); 
+            width: 100%; text-align: left; background: rgba(15, 23, 42, 0.8); 
             padding: 12px; border-radius: 4px; border-left: 3px solid rgba(255,255,255,0.3);
             backdrop-filter: blur(4px); z-index: 7; margin-top: auto;
         }
@@ -206,21 +187,19 @@
         .poke-stars { color: #facc15; font-size: 0.8rem; margin-bottom: 6px; letter-spacing: 3px; }
         .poke-msg { font-size: 0.7rem; color: #cbd5e1; font-style: italic; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px; font-family: 'Noto Sans TC', sans-serif; }
 
-        /* 物理反光 Glare */
-        .glare {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 60%);
-            mix-blend-mode: overlay; opacity: 0; pointer-events: none; z-index: 20;
-        }
+        /* 物理反光 */
+        .glare { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 60%); mix-blend-mode: overlay; opacity: 0; pointer-events: none; z-index: 20; }
 
         .close-reward-btn {
-            margin-top: 30px; background: rgba(0,0,0,0.6); color: #22d3ee; 
-            border: 1px solid #22d3ee; padding: 12px 40px;
+            margin-top: 30px; background: rgba(0,0,0,0.6); color: #22d3ee; border: 1px solid #22d3ee; padding: 12px 40px;
             border-radius: 4px; cursor: pointer; font-size: 1.1rem;
             box-shadow: 0 0 15px rgba(34, 211, 238, 0.3); transition: all 0.2s; z-index: 20001;
             font-family: 'Orbitron', sans-serif; letter-spacing: 2px; text-transform: uppercase;
         }
         .close-reward-btn:hover { background: #22d3ee; color: #000; box-shadow: 0 0 30px rgba(34, 211, 238, 0.8); }
+        
+        .sparkle { position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 8px white, 0 0 15px gold; opacity: 0; animation: sparkle-anim 1.5s linear infinite; z-index: 25; }
+        @keyframes sparkle-anim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
     </style>
 </head>
 <body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
@@ -247,6 +226,7 @@
         <div class="flex justify-between items-start mb-1">
             <div>
                 <h4 id="tt-word" class="text-xl font-bold text-blue-700 font-english capitalize inline-block"></h4>
+                <span id="tt-pos" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded italic ml-2"></span>
                 <span id="tt-ipa" class="text-sm text-gray-500 font-mono ml-2"></span>
             </div>
             <i class="fas fa-volume-up text-blue-500 animate-pulse cursor-pointer" onclick="playCurrentWordAudio()"></i>
@@ -384,6 +364,7 @@
         const rateValue=document.getElementById('rateValue');
         const tooltip=document.getElementById('vocabTooltip');
         const ttWord=document.getElementById('tt-word');
+        const ttPos=document.getElementById('tt-pos');
         const ttDefZh=document.getElementById('tt-def-zh');
         const ttExEn=document.getElementById('tt-ex-en'), ttExZh=document.getElementById('tt-ex-zh');
         const ttIpa=document.getElementById('tt-ipa');
@@ -429,7 +410,6 @@
 
         function handleWordClick(e){e.stopPropagation(); showTooltip(e.target);}
 
-        // 播放當前 Tooltip 單字發音
         function playCurrentWordAudio() {
             if(ttWord.textContent) {
                 const key = ttWord.textContent.toLowerCase();
@@ -438,13 +418,12 @@
             }
         }
 
-        // ★★★ 前端備援：直接呼叫 DictionaryAPI (若後端失敗) ★★★
+        // 前端備援：Dictionary API 抓例句
         async function fetchExampleFallback(word) {
             try {
                 const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
                 if (!res.ok) return null;
                 const data = await res.json();
-                // 尋找例句
                 for (const entry of data) {
                     if(entry.meanings) {
                         for(const m of entry.meanings) {
@@ -467,10 +446,10 @@
 
             ttWord.textContent=data.word; 
             ttIpa.textContent=data.ipa ? `[${data.ipa}]` : "";
+            ttPos.textContent=data.pos || ""; // 顯示詞性
             
             if(data.analysis){ttAnalysisContainer.classList.remove('hidden'); ttAnalysis.textContent=data.analysis;}else{ttAnalysisContainer.classList.add('hidden');}
             
-            // Positioning
             const rect=el.getBoundingClientRect(); const h=tooltip.offsetHeight||200, w=tooltip.offsetWidth||300;
             let top=rect.top-h-12, left=rect.left+rect.width/2-w/2;
             const arrow=document.getElementById('tooltipArrow'); arrow.className='tooltip-arrow bottom';
@@ -479,28 +458,25 @@
             arrow.style.left=`${Math.min(Math.max(rect.left+rect.width/2-left,15),w-15)}px`;
             tooltip.style.top=`${top}px`; tooltip.style.left=`${left}px`; tooltip.classList.add('show');
 
-            // 檢查例句
             if(!data.zh||!data.ex_en){
                 const key=data.word.toLowerCase();
-                if(wordCache[key]){
-                    updateTooltip(wordCache[key]);
-                }else{
+                if(wordCache[key]){updateTooltip(wordCache[key]);}else{
                     ttLoading.classList.remove('hidden'); ttExContainer.classList.remove('hidden'); btnReadEx.style.display='none';
                     ttDefZh.textContent="查詢中..."; ttExEn.textContent=""; ttExZh.textContent=""; ttIpa.textContent="";
                     
                     try{
-                        // 1. 呼叫後端 (Google Translate)
+                        // 1. 呼叫後端 (Cambridge Scraper)
                         const res=await callAPI({action:"getWordInfo",word:data.word});
                         
                         if(res.status==="success"){
                             const info=res.data; 
                             data.zh=info.def_zh; data.ex_en=info.ex_en; data.ex_zh=info.ex_zh; 
-                            data.ipa=info.ipa; data.audio=info.audio; 
+                            data.ipa=info.ipa; data.audio=info.audio; data.pos=info.pos;
                             
-                            // 2. 若後端沒抓到例句，嘗試前端備援
+                            // 2. 若後端沒抓到例句，嘗試前端備援 (DictionaryAPI)
                             if(!data.ex_en) {
                                 const fbEx = await fetchExampleFallback(data.word);
-                                if(fbEx) { data.ex_en = fbEx; data.ex_zh = "(僅供參考)"; } // 備援例句無翻譯
+                                if(fbEx) { data.ex_en = fbEx; data.ex_zh = "(僅供參考)"; } 
                             }
 
                             wordCache[key]=data; updateTooltip(data);
@@ -508,7 +484,7 @@
                             ttDefZh.textContent="查詢失敗"; ttLoading.classList.add('hidden');
                         }
                     }catch(e){
-                        // 後端掛掉時，至少嘗試顯示前端抓到的英文例句
+                        // 後端連線失敗，用前端備援
                         const fbEx = await fetchExampleFallback(data.word);
                         if(fbEx) { 
                             data.ex_en = fbEx; data.ex_zh = ""; 
@@ -528,6 +504,7 @@
             ttExEn.textContent=data.ex_en||""; 
             ttExZh.textContent=data.ex_zh||""; 
             ttIpa.textContent=data.ipa?`[${data.ipa}]`:"";
+            ttPos.textContent=data.pos||""; // 更新詞性
             
             if(data.ex_en&&data.ex_en!==""){ttExContainer.classList.remove('hidden'); btnReadEx.style.display='block';}else{ttExContainer.classList.add('hidden'); btnReadEx.style.display='none';}
         }
@@ -551,7 +528,6 @@
 
         function nextQuestion(){
             if(gameData.length===0)return;
-            // Reset button style & text
             const nextQBtn = document.getElementById('nextQBtn');
             nextQBtn.innerHTML = '下一題 Next <i class="fas fa-arrow-right ml-2"></i>';
             nextQBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
@@ -561,7 +537,6 @@
             document.getElementById('q-word').textContent=currentQuestion.question;
             document.getElementById('q-type').textContent=currentQuestion.type;
             document.getElementById('gameAnalysis').classList.add('hidden');
-            // Hide last one hint
             document.getElementById('lastOneHint').classList.add('hidden');
             const opts=[...currentQuestion.options].sort(()=>Math.random()-0.5);
             document.getElementById('options-grid').innerHTML=opts.map(o=>`<button onclick="checkAnswer(this, '${o.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${o}</button>`).join('');
@@ -576,7 +551,6 @@
                 document.getElementById('streak-count').textContent=streak;
                 if(streak>0)document.getElementById('streak-icon').style.display='inline-block';
                 
-                // ★★★ 自動跳下一題 & 最後一題提醒 ★★★
                 if(streak === TARGET_STREAK - 1) {
                     playFeedbackAudio("Excellent! One more to go!");
                     const hint = document.getElementById('lastOneHint');
@@ -584,12 +558,11 @@
                     hint.textContent = "最後一題！加油！(Last one!)";
                     setTimeout(nextQuestion, 2000); 
                 } else if(streak === TARGET_STREAK) {
-                    showReward(); // 直接顯示獎勵 (不放煙火)
+                    showReward(); 
                 } else {
                     playFeedbackAudio("Excellent!");
-                    setTimeout(nextQuestion, 1000); // 1秒後下一題
+                    setTimeout(nextQuestion, 1000); 
                 }
-
             }else{
                 btn.classList.add('wrong'); streak=0;
                 document.getElementById('streak-count').textContent=streak;
@@ -598,7 +571,6 @@
                 document.querySelectorAll('.game-option-btn').forEach(b=>{if(b.textContent.trim()===currentQuestion.answer)b.classList.add('correct');});
                 playFeedbackAudio("Wrong answer.");
                 
-                // --- 挑戰失敗：按鈕變身 ---
                 const nextQBtn = document.getElementById('nextQBtn');
                 nextQBtn.innerHTML = '<i class="fas fa-redo-alt mr-2"></i> 再挑戰一次 (Try Again)';
                 nextQBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
@@ -607,7 +579,7 @@
         }
 
         function showReward(){
-            // 同步放煙火 + 顯示卡片
+            // 煙火
             const fwLayer = document.getElementById('fireworksLayer');
             fwLayer.innerHTML = '';
             fwLayer.classList.remove('hidden');
@@ -620,10 +592,7 @@
                 fwLayer.appendChild(fw);
             }
             
-            // 3秒後自動關閉煙火
-            setTimeout(() => { fwLayer.classList.add('hidden'); }, 3000);
-            
-            // ★增加挑戰成功人數計數
+            // 計數器
             callAPI({ action: "incrementChallengeCount" }).then(res => {
                 if(res.status === "success") {
                     const msg = document.getElementById('rewardMsg'); 
@@ -643,13 +612,10 @@
             
             const img = (card["圖片"]&&card["圖片"].startsWith('http')) ? `<img src="${card["圖片"]}" class="poke-img-content" alt="${card["名稱"]}">` : `<i class="fas fa-dragon poke-img-placeholder animate-pulse" style="font-size:80px;color:#d4af37"></i>`;
             
-            // 產生星星
             let starsHtml = '';
             for(let i=0; i<star; i++) starsHtml += '<i class="fas fa-star"></i>';
 
-            // Tags Generation
             let tags = '';
-            // 根據屬性顯示對應顏色標籤
             let typeColor = "tag-default";
             if(attr.includes("草")) typeColor="tag-grass";
             else if(attr.includes("火")) typeColor="tag-fire";
@@ -660,30 +626,14 @@
             
             if(attr) tags += `<span class="card-tag ${typeColor} mr-1">${attr}</span>`;
             
-            // 特殊標籤
             if(special && special !== "一般") {
                 let spColor = special==="傳說" ? "tag-special-legendary" : "tag-special-mythical";
                 tags += `<span class="card-tag ${spColor}">${special}</span>`;
             }
 
-            // ★ 多樣化鼓勵語
-            const msgs = [
-                "每一次努力，都是通往夢想的階梯！",
-                "相信自己，你的潛力無限大！",
-                "學習的路上，你並不孤單，繼續加油！",
-                "今天的汗水，是明天成功的養分。",
-                "堅持到底，最美的風景就在頂峰。",
-                "不怕慢，只怕站。持續進步就是贏家！",
-                "你的認真，大家都看在眼裡，太棒了！",
-                "每一個單字都是開啟新世界的鑰匙。",
-                "失敗只是成功的墊腳石，勇敢挑戰吧！",
-                "為自己感到驕傲吧！你正在變得更強。",
-                "太厲害了！知識就是你的超能力。",
-                "保持這份熱情，未來掌握在你手中！"
-            ];
+            const msgs = ["每一次努力，都是通往夢想的階梯！","相信自己，你的潛力無限大！","學習的路上，你並不孤單，繼續加油！","今天的汗水，是明天成功的養分。","堅持到底，最美的風景就在頂峰。","不怕慢，只怕站。持續進步就是贏家！","你的認真，大家都看在眼裡，太棒了！","每一個單字都是開啟新世界的鑰匙。","失敗只是成功的墊腳石，勇敢挑戰吧！","為自己感到驕傲吧！你正在變得更強。","太厲害了！知識就是你的超能力。","保持這份熱情，未來掌握在你手中！"];
             const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
 
-            // 決定語音內容
             let voiceMsg = `Congratulations! You got ${engName || 'a Pokemon'}!`;
             if(card["名稱"] && card["名稱"].indexOf("超夢") !== -1) {
                 voiceMsg = "太神啦！恭喜你抽中了超夢！";
@@ -695,9 +645,7 @@
                 <div class="holo-overlay"></div>
                 <div class="poke-card-inner">
                     <div class="poke-header">
-                        <div class="flex items-center flex-wrap gap-1">
-                            ${tags}
-                        </div>
+                        <div class="flex items-center flex-wrap gap-1">${tags}</div>
                         <span class="text-red-600 font-bold font-mono text-sm">${hp}</span>
                     </div>
                     <div class="poke-img-frame">
@@ -717,20 +665,15 @@
 
             document.getElementById('rewardModal').classList.add('show');
             
-            // 3D Tilt 互動
             const activeCard = document.getElementById('activePokeCard');
             if(activeCard) {
                 const handleMove = (x, y) => {
                     const rect = activeCard.getBoundingClientRect();
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    // 計算旋轉角度
                     const rotateX = ((y - rect.top - centerY) / centerY) * -15; 
                     const rotateY = ((x - rect.left - centerX) / centerX) * 15;
-                    
                     activeCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    
-                    // 調整反光位置
                     const glare = activeCard.querySelector('.glare');
                     if(glare) {
                         glare.style.background = `radial-gradient(circle at ${x - rect.left}px ${y - rect.top}px, rgba(255,255,255,0.8) 0%, transparent 50%)`;
@@ -763,7 +706,6 @@
         function playAudio(t){window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='en-US'; u.rate=parseFloat(rateInput.value)||1.0; window.speechSynthesis.speak(u);}
         function speakQuote(){if(currentQuoteData)playAudio(currentQuoteData.en);}
         
-        // 支援中文的語音播放
         function playFeedbackAudio(t){
             setTimeout(()=>{
                 const u=new SpeechSynthesisUtterance(t); 
