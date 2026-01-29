@@ -9,7 +9,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;1,400&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap'); /* 引入科技感字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap'); /* 科技感字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap'); /* 數據感字體 */
         
         body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); background-attachment: fixed; min-height: 100vh; overflow-x: hidden; }
         
@@ -70,173 +71,156 @@
             }
         }
 
-        /* ================= 3D 閃卡特效樣式 (黑科技質感版) ================= */
+        /* ================= 科技風閃卡 (Tech/Sci-Fi Card) ================= */
         .reward-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 20000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.5s;
-            backdrop-filter: blur(10px); perspective: 1200px;
+            backdrop-filter: blur(15px); perspective: 1200px;
         }
         .reward-overlay.show { opacity: 1; visibility: visible; }
 
         .poke-card {
-            width: 300px; height: 450px; border-radius: 16px; position: relative;
+            width: 320px; height: 480px; border-radius: 12px; position: relative;
             transform-style: preserve-3d; transition: transform 0.1s;
             overflow: hidden; cursor: pointer;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
-            background-size: cover;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            background-color: #0b0c15; /* 深色科技底 */
             -webkit-user-select: none; user-select: none;
             touch-action: none;
-            /* 科技感網格背景 */
+            /* 科技網格背景 */
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
             background-size: 20px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
         }
 
-        /* 卡片等級邊框與基礎色調 */
-        /* 傳說 (Legendary) - 黑金 */
-        .poke-card.legendary {
-            background-color: #1a1a1a;
-            border: 6px solid #fbbf24;
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
-        }
-        .poke-card.legendary .card-border-glow { box-shadow: inset 0 0 20px #fbbf24; }
-
-        /* 幻之 (Mythical) - 深紫 */
-        .poke-card.mythical {
-            background-color: #2e1065;
-            border: 6px solid #d8b4fe;
-            box-shadow: 0 0 30px rgba(216, 180, 254, 0.5);
-        }
-        .poke-card.mythical .card-border-glow { box-shadow: inset 0 0 20px #d8b4fe; }
-
-        /* 一般 (Normal) - 深藍灰 */
-        .poke-card.normal {
-            background-color: #0f172a;
-            border: 6px solid #94a3b8;
-            box-shadow: 0 0 30px rgba(148, 163, 184, 0.4);
-        }
-        .poke-card.normal .card-border-glow { box-shadow: inset 0 0 20px #94a3b8; }
-
-        /* ★★★ 全像雷射紋理 (Holo Foil) - 更細緻的流光 ★★★ */
-        .holo-overlay {
-            position: absolute; inset: 0; z-index: 6; pointer-events: none;
-            /* 使用 color-dodge 混合，創造金屬反光感 */
-            mix-blend-mode: color-dodge; 
-            background: 
-                /* 彩虹光譜 */
-                linear-gradient(105deg, 
-                    transparent 20%, 
-                    rgba(255, 0, 0, 0.4) 30%, 
-                    rgba(255, 255, 0, 0.4) 40%, 
-                    rgba(0, 255, 0, 0.4) 50%,
-                    rgba(0, 255, 255, 0.4) 60%, 
-                    rgba(0, 0, 255, 0.4) 70%, 
-                    rgba(255, 0, 255, 0.4) 80%, 
-                    transparent 90%
-                );
-            background-size: 200% 200%;
-            opacity: 0.7; 
-            filter: contrast(1.3) brightness(1.2);
-            /* 自動流動動畫 */
-            animation: holo-shimmer 3s linear infinite;
+        /* --- 科技風邊框與光暈 --- */
+        .poke-card::after {
+            content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 8;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* 傳說卡片的閃光更強烈 */
-        .poke-card.legendary .holo-overlay { opacity: 0.9; animation-duration: 2.5s; }
+        /* 傳說 (Legendary) - 黃金數據流 */
+        .poke-card.legendary { box-shadow: 0 0 50px rgba(255, 215, 0, 0.4); border-color: #fbbf24; }
+        .poke-card.legendary .card-glow { box-shadow: 0 0 15px #fbbf24, inset 0 0 15px #fbbf24; }
+        .poke-card.legendary .scanline { background: linear-gradient(to bottom, transparent, rgba(255, 215, 0, 0.2), transparent); }
+        .poke-card.legendary .poke-name { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
 
-        @keyframes holo-shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* 幻之 (Mythical) - 紫色能量 */
+        .poke-card.mythical { box-shadow: 0 0 50px rgba(192, 38, 211, 0.4); border-color: #c026d3; }
+        .poke-card.mythical .card-glow { box-shadow: 0 0 15px #c026d3, inset 0 0 15px #c026d3; }
+        .poke-card.mythical .scanline { background: linear-gradient(to bottom, transparent, rgba(192, 38, 211, 0.2), transparent); }
+        .poke-card.mythical .poke-name { color: #e879f9; text-shadow: 0 0 10px rgba(232, 121, 249, 0.8); }
+
+        /* 一般 (Normal) - 青色科技 */
+        .poke-card.normal { box-shadow: 0 0 50px rgba(6, 182, 212, 0.3); border-color: #06b6d4; }
+        .poke-card.normal .card-glow { box-shadow: 0 0 15px #06b6d4, inset 0 0 15px #06b6d4; }
+        .poke-card.normal .scanline { background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.2), transparent); }
+        .poke-card.normal .poke-name { color: #22d3ee; text-shadow: 0 0 10px rgba(34, 211, 238, 0.8); }
+
+        /* 掃描線動畫 */
+        .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 20px; z-index: 5;
+            animation: scan 3s linear infinite; pointer-events: none; opacity: 0.5;
         }
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
 
         /* 內部排版 */
         .poke-card-inner { 
             width: 100%; height: 100%; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 10px; position: relative; z-index: 4; 
+            display: flex; flex-direction: column; 
+            padding: 16px; position: relative; z-index: 4; 
         }
 
-        /* 卡片頭部 */
         .poke-header { 
             width: 100%; display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 8px; font-weight: bold; z-index: 7; 
+            margin-bottom: 10px; z-index: 7; 
             font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
         }
         
+        /* 科技感標籤 */
         .card-tag { 
-            font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; 
-            color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.5); 
-            text-transform: uppercase; font-weight: 700;
+            font-size: 0.6rem; padding: 2px 8px; 
+            color: white; text-transform: uppercase; font-weight: 700;
+            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 25%); /* 斜角設計 */
+            border-left: 2px solid rgba(255,255,255,0.5);
+            font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;
         }
-        /* 屬性標籤顏色 */
-        .tag-grass { background: #10b981; } /* 草 */
-        .tag-fire { background: #ef4444; }  /* 火 */
-        .tag-water { background: #3b82f6; } /* 水 */
-        .tag-electric { background: #eab308; } /* 電 */
-        .tag-psychic { background: #a855f7; } /* 超能 */
-        .tag-normal { background: #64748b; } /* 一般 */
-        .tag-default { background: #4b5563; } /* 其他 */
+        .tag-grass { background: linear-gradient(90deg, #064e3b, #10b981); } 
+        .tag-fire { background: linear-gradient(90deg, #7f1d1d, #ef4444); }  
+        .tag-water { background: linear-gradient(90deg, #1e3a8a, #3b82f6); } 
+        .tag-electric { background: linear-gradient(90deg, #713f12, #eab308); } 
+        .tag-psychic { background: linear-gradient(90deg, #581c87, #a855f7); } 
+        .tag-normal { background: linear-gradient(90deg, #334155, #94a3b8); } 
+        .tag-default { background: linear-gradient(90deg, #1f2937, #4b5563); }
 
-        /* 特殊等級標籤顏色 */
-        .tag-legendary { background: linear-gradient(90deg, #d97706, #fbbf24); color: #000; }
-        .tag-mythical { background: linear-gradient(90deg, #7e22ce, #d8b4fe); }
-        
-        /* 圖片框 - 增加金屬邊框感 */
+        .tag-special-legendary { border: 1px solid #fbbf24; color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+        .tag-special-mythical { border: 1px solid #d8b4fe; color: #d8b4fe; background: rgba(216, 180, 254, 0.1); }
+        .tag-special-normal { border: 1px solid #94a3b8; color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
+
+        /* 圖片框 */
         .poke-img-frame {
-            width: 100%; aspect-ratio: 4/3; margin-bottom: 12px;
-            background: linear-gradient(to bottom, #f1f5f9, #cbd5e1); /* 銀灰漸層背景 */
-            border: 4px solid #334155;
-            border-radius: 6px; overflow: hidden; display: flex; justify-content: center; align-items: center;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
-            z-index: 5; position: relative;
+            width: 100%; aspect-ratio: 4/3; margin-bottom: 15px;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            z-index: 5;
+            /* 四角裝飾 */
+            background-image: 
+                linear-gradient(to right, #fff 1px, transparent 1px),
+                linear-gradient(to bottom, #fff 1px, transparent 1px);
+            background-size: 10px 10px;
+            background-position: 0 0;
         }
+        /* 圖片框角落裝飾線 */
+        .frame-corner {
+            position: absolute; width: 10px; height: 10px; border: 2px solid rgba(255,255,255,0.5);
+            pointer-events: none;
+        }
+        .fc-tl { top: 2px; left: 2px; border-right: 0; border-bottom: 0; }
+        .fc-tr { top: 2px; right: 2px; border-left: 0; border-bottom: 0; }
+        .fc-bl { bottom: 2px; left: 2px; border-right: 0; border-top: 0; }
+        .fc-br { bottom: 2px; right: 2px; border-left: 0; border-top: 0; }
+
         .poke-img-content { 
             width: 90%; height: 90%; object-fit: contain; 
-            mix-blend-mode: multiply; /* 讓圖片融入背景 */
-            filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.4)); 
-            transition: transform 0.3s; 
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); 
+            transition: transform 0.3s; z-index: 2;
         }
-        .poke-card:hover .poke-img-content { transform: scale(1.15) rotate(2deg); }
+        .poke-card:hover .poke-img-content { transform: scale(1.15) translateZ(20px); }
 
-        /* 資訊區塊 - 半透明黑底白字 */
+        /* 資訊區塊 */
         .poke-info { 
-            width: 100%; text-align: center; 
-            background: rgba(0,0,0,0.6); /* 深色半透明背景 */
-            padding: 10px; border-radius: 6px; 
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(2px);
-            z-index: 7; 
-            margin-top: auto;
+            width: 100%; text-align: left; 
+            background: rgba(15, 23, 42, 0.8); 
+            padding: 12px; border-radius: 4px; border-left: 3px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(4px); z-index: 7; margin-top: auto;
         }
-        .poke-name { font-size: 1.5rem; font-weight: 800; color: #f8fafc; line-height: 1.1; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .poke-eng-name { font-size: 0.8rem; color: #94a3b8; font-family: 'Orbitron', sans-serif; letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; }
-        .poke-stars { color: #fbbf24; font-size: 1rem; margin-bottom: 4px; letter-spacing: 2px; filter: drop-shadow(0 0 3px gold); }
-        .poke-msg { font-size: 0.75rem; color: #e2e8f0; font-style: italic; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 6px; font-family: 'Noto Sans TC', sans-serif; }
+        .poke-name { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .poke-eng-name { font-size: 0.7rem; color: #94a3b8; font-family: 'Rajdhani', sans-serif; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+        .poke-stars { color: #facc15; font-size: 0.8rem; margin-bottom: 6px; letter-spacing: 3px; }
+        .poke-msg { font-size: 0.7rem; color: #cbd5e1; font-style: italic; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 6px; font-family: 'Noto Sans TC', sans-serif; }
 
-        /* 物理反光 Glare (互動用) */
+        /* 物理反光 Glare */
         .glare {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 18px;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 60%);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 60%);
             mix-blend-mode: overlay; opacity: 0; pointer-events: none; z-index: 20;
         }
 
         .close-reward-btn {
-            margin-top: 30px; background: white; color: #1e293b; font-weight: bold; padding: 12px 40px;
-            border-radius: 50px; border: none; cursor: pointer; font-size: 1.1rem;
-            box-shadow: 0 0 20px rgba(255,255,255,0.3); transition: all 0.2s; z-index: 20001;
-            font-family: 'Orbitron', sans-serif;
+            margin-top: 30px; background: rgba(0,0,0,0.6); color: #22d3ee; 
+            border: 1px solid #22d3ee; padding: 12px 40px;
+            border-radius: 4px; cursor: pointer; font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3); transition: all 0.2s; z-index: 20001;
+            font-family: 'Orbitron', sans-serif; letter-spacing: 2px; text-transform: uppercase;
         }
-        .close-reward-btn:hover { transform: scale(1.05); background: #f1f5f9; box-shadow: 0 0 30px rgba(255,255,255,0.6); }
-        
-        .sparkle {
-            position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 8px white, 0 0 15px gold; opacity: 0;
-            animation: sparkle-anim 1.5s linear infinite; z-index: 25;
-        }
-        @keyframes sparkle-anim { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+        .close-reward-btn:hover { background: #22d3ee; color: #000; box-shadow: 0 0 30px rgba(34, 211, 238, 0.8); }
     </style>
 </head>
 <body class="flex flex-col items-center py-4 md:py-8 px-2 md:px-4">
@@ -244,14 +228,14 @@
     <!-- 金卡獎勵視窗 -->
     <div id="rewardModal" class="reward-overlay">
         <div class="flex flex-col items-center perspective-container">
-            <h2 class="text-white text-3xl md:text-5xl font-bold mb-10 animate-bounce text-center drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] font-['Orbitron'] tracking-wider">
-                <i class="fas fa-crown text-yellow-300 mr-2"></i>MISSION COMPLETE<i class="fas fa-crown text-yellow-300 ml-2"></i>
+            <h2 class="text-white text-3xl md:text-5xl font-bold mb-10 animate-pulse text-center font-['Orbitron'] tracking-widest" style="text-shadow: 0 0 15px cyan;">
+                MISSION COMPLETE
             </h2>
             <div id="rewardCardContainer" class="relative"></div>
             <button class="close-reward-btn" onclick="closeReward()">
-                <i class="fas fa-check mr-2"></i> CLAIM REWARD
+                <i class="fas fa-check mr-2"></i> ACCEPT
             </button>
-            <p id="rewardMsg" class="text-gray-300 mt-6 text-sm opacity-80 font-mono tracking-widest text-center">STREAK 10 UNLOCKED</p>
+            <p id="rewardMsg" class="text-cyan-400 mt-6 text-sm font-mono tracking-widest text-center">DATA SYNCHRONIZED</p>
         </div>
     </div>
 
@@ -274,7 +258,7 @@
             <div class="bg-blue-50 p-2 rounded text-xs mt-2 relative group min-h-[40px] hidden" id="tt-ex-container">
                 <div id="tt-loading" class="absolute inset-0 flex items-center justify-center bg-blue-50 bg-opacity-80 hidden">
                     <div class="loading-spinner" style="width:16px; height:16px; border-width:2px; border-top-color:#2563eb;"></div>
-                    <span class="ml-2 text-gray-500 italic">查詢中...</span>
+                    <span class="ml-2 text-gray-500 italic">搜尋例句中...</span>
                 </div>
                 <button id="btn-read-ex" class="absolute top-1 right-1 text-blue-300 hover:text-blue-600 transition-colors hidden" title="朗讀例句"><i class="fas fa-volume-up"></i></button>
                 <p id="tt-ex-en" class="text-blue-900 font-english italic mb-1 pr-5"></p>
@@ -454,6 +438,26 @@
             }
         }
 
+        // ★★★ 前端備援：直接呼叫 DictionaryAPI (若後端失敗) ★★★
+        async function fetchExampleFallback(word) {
+            try {
+                const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                if (!res.ok) return null;
+                const data = await res.json();
+                // 尋找例句
+                for (const entry of data) {
+                    if(entry.meanings) {
+                        for(const m of entry.meanings) {
+                            for(const d of m.definitions) {
+                                if(d.example) return d.example;
+                            }
+                        }
+                    }
+                }
+                return null;
+            } catch (e) { console.error(e); return null; }
+        }
+
         async function showTooltip(el){
             const idx=el.getAttribute('data-kw-index'); const data=currentQuoteData.keywords[idx]; if(!data)return;
             document.querySelectorAll('.vocab-highlight').forEach(e=>e.classList.remove('active')); el.classList.add('active');
@@ -475,27 +479,56 @@
             arrow.style.left=`${Math.min(Math.max(rect.left+rect.width/2-left,15),w-15)}px`;
             tooltip.style.top=`${top}px`; tooltip.style.left=`${left}px`; tooltip.classList.add('show');
 
+            // 檢查例句
             if(!data.zh||!data.ex_en){
                 const key=data.word.toLowerCase();
-                if(wordCache[key]){updateTooltip(wordCache[key]);}else{
+                if(wordCache[key]){
+                    updateTooltip(wordCache[key]);
+                }else{
                     ttLoading.classList.remove('hidden'); ttExContainer.classList.remove('hidden'); btnReadEx.style.display='none';
                     ttDefZh.textContent="查詢中..."; ttExEn.textContent=""; ttExZh.textContent=""; ttIpa.textContent="";
+                    
                     try{
+                        // 1. 呼叫後端 (Google Translate)
                         const res=await callAPI({action:"getWordInfo",word:data.word});
+                        
                         if(res.status==="success"){
                             const info=res.data; 
                             data.zh=info.def_zh; data.ex_en=info.ex_en; data.ex_zh=info.ex_zh; 
                             data.ipa=info.ipa; data.audio=info.audio; 
+                            
+                            // 2. 若後端沒抓到例句，嘗試前端備援
+                            if(!data.ex_en) {
+                                const fbEx = await fetchExampleFallback(data.word);
+                                if(fbEx) { data.ex_en = fbEx; data.ex_zh = "(僅供參考)"; } // 備援例句無翻譯
+                            }
+
                             wordCache[key]=data; updateTooltip(data);
-                        }else{ttDefZh.textContent="查詢失敗"; ttLoading.classList.add('hidden');}
-                    }catch(e){ttDefZh.textContent="網路錯誤"; ttLoading.classList.add('hidden');}
+                        }else{
+                            ttDefZh.textContent="查詢失敗"; ttLoading.classList.add('hidden');
+                        }
+                    }catch(e){
+                        // 後端掛掉時，至少嘗試顯示前端抓到的英文例句
+                        const fbEx = await fetchExampleFallback(data.word);
+                        if(fbEx) { 
+                            data.ex_en = fbEx; data.ex_zh = ""; 
+                            ttDefZh.textContent = "無法連線翻譯";
+                            updateTooltip(data);
+                        } else {
+                            ttDefZh.textContent = "網路錯誤"; ttLoading.classList.add('hidden'); 
+                        }
+                    }
                 }
             }else{updateTooltip(data);}
         }
 
         function updateTooltip(data){
-            ttLoading.classList.add('hidden'); ttDefZh.textContent=data.zh||"無中文翻譯"; ttExEn.textContent=data.ex_en||""; ttExZh.textContent=data.ex_zh||""; 
+            ttLoading.classList.add('hidden'); 
+            ttDefZh.textContent=data.zh||"無中文翻譯"; 
+            ttExEn.textContent=data.ex_en||""; 
+            ttExZh.textContent=data.ex_zh||""; 
             ttIpa.textContent=data.ipa?`[${data.ipa}]`:"";
+            
             if(data.ex_en&&data.ex_en!==""){ttExContainer.classList.remove('hidden'); btnReadEx.style.display='block';}else{ttExContainer.classList.add('hidden'); btnReadEx.style.display='none';}
         }
         function hideTooltip(){tooltip.classList.remove('show'); document.querySelectorAll('.vocab-highlight').forEach(e=>e.classList.remove('active'));}
@@ -594,7 +627,7 @@
             callAPI({ action: "incrementChallengeCount" }).then(res => {
                 if(res.status === "success") {
                     const msg = document.getElementById('rewardMsg'); 
-                    msg.innerHTML = `STREAK 10 COMPLETED<br><span class="text-yellow-300 text-lg">你是第 ${res.count} 位挑戰成功的單字大師！</span>`;
+                    msg.innerHTML = `STREAK 10 COMPLETED<br><span class="text-cyan-300 text-lg">你是第 ${res.count} 位挑戰成功的單字大師！</span>`;
                 }
             });
 
@@ -629,7 +662,7 @@
             
             // 特殊標籤
             if(special && special !== "一般") {
-                let spColor = special==="傳說" ? "tag-legendary" : "tag-mythical";
+                let spColor = special==="傳說" ? "tag-special-legendary" : "tag-special-mythical";
                 tags += `<span class="card-tag ${spColor}">${special}</span>`;
             }
 
@@ -668,6 +701,8 @@
                         <span class="text-red-600 font-bold font-mono text-sm">${hp}</span>
                     </div>
                     <div class="poke-img-frame">
+                        <div class="frame-corner fc-tl"></div><div class="frame-corner fc-tr"></div>
+                        <div class="frame-corner fc-bl"></div><div class="frame-corner fc-br"></div>
                         <div class="glare"></div>
                         ${img}
                     </div>
@@ -689,9 +724,13 @@
                     const rect = activeCard.getBoundingClientRect();
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
+                    // 計算旋轉角度
                     const rotateX = ((y - rect.top - centerY) / centerY) * -15; 
                     const rotateY = ((x - rect.left - centerX) / centerX) * 15;
+                    
                     activeCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    
+                    // 調整反光位置
                     const glare = activeCard.querySelector('.glare');
                     if(glare) {
                         glare.style.background = `radial-gradient(circle at ${x - rect.left}px ${y - rect.top}px, rgba(255,255,255,0.8) 0%, transparent 50%)`;
@@ -715,7 +754,7 @@
 
         function closeReward(){
             document.getElementById('rewardModal').classList.remove('show');
-            document.getElementById('fireworksLayer').classList.add('hidden'); // 隱藏煙火
+            document.getElementById('fireworksLayer').classList.add('hidden'); 
             streak=0; document.getElementById('streak-count').textContent=0; document.getElementById('streak-icon').style.display='none';
             document.getElementById('lastOneHint').classList.add('hidden');
             nextQuestion();
