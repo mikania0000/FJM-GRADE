@@ -298,10 +298,8 @@
                     <h3 class="font-bold text-gray-800 text-lg flex items-center flex-wrap">
                         <i class="fas fa-gamepad text-green-500 mr-2 text-2xl"></i>
                         英文單字挑戰
-                        <!-- 修正：移除 block sm:inline，改為預設 inline 確保手機可見 -->
                         <span class="ml-2 text-sm text-red-500 font-bold">國中1200單字挑戰(全對抽寶可夢)</span>
                         <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Challenge</span>
-                        <!-- 修正：移除 hidden，確保手機可見 -->
                         <span id="globalChallengeCount" class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full flex items-center mt-1 md:mt-0">
                             <i class="fas fa-trophy text-yellow-600 mr-1"></i>
                             <span id="challengeCountNum">0</span> 人已通關
@@ -337,9 +335,21 @@
         </div>
 
         <div class="p-4 md:p-6 lg:p-10">
-            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId"><i class="fas fa-id-card text-blue-500 mr-2"></i>學號</label><input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="studentId" type="text" placeholder="請輸入學號" required></div>
-                <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4"><i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼</label><div class="relative"><input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="idLast4" type="password" placeholder="後4碼" maxlength="6" required><button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"><i class="fas fa-eye text-2xl"></i></button></div></div>
+            <!-- ========== 加入 autocomplete="off" 防止瀏覽器自動填入 ========== -->
+            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" autocomplete="off">
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="studentId"><i class="fas fa-id-card text-blue-500 mr-2"></i>學號</label>
+                    <!-- ========== 加入 autocomplete="off" ========== -->
+                    <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="studentId" type="text" placeholder="請輸入學號" required autocomplete="off">
+                </div>
+                <div class="col-span-1">
+                    <label class="block text-gray-700 font-bold mb-2 text-title-size" for="idLast4"><i class="fas fa-lock text-blue-500 mr-2"></i>身分證後4碼</label>
+                    <div class="relative">
+                        <!-- ========== 加入 autocomplete="new-password" ========== -->
+                        <input class="shadow-sm appearance-none border border-gray-300 rounded w-full py-3 px-4 pr-12 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-content-size hover:shadow-md" id="idLast4" type="password" placeholder="後4碼" maxlength="6" required autocomplete="new-password">
+                        <button type="button" id="toggleIdVisibility" class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"><i class="fas fa-eye text-2xl"></i></button>
+                    </div>
+                </div>
                 <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="yearSelect"><i class="fas fa-calendar-alt text-blue-500 mr-2"></i>學年度</label><div class="relative"><select id="yearSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="" disabled selected>載入中...</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
                 <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="semesterSelect"><i class="fas fa-clock text-blue-500 mr-2"></i>學期 (選填)</label><div class="relative"><select id="semesterSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">上學期 (1)</option><option value="2">下學期 (2)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
                 <div class="col-span-1"><label class="block text-gray-700 font-bold mb-2 text-title-size" for="examSelect"><i class="fas fa-file-alt text-blue-500 mr-2"></i>段考 (選填)</label><div class="relative"><select id="examSelect" class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-3 pr-10 rounded shadow-sm leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer text-content-size hover:shadow-md"><option value="">全部</option><option value="1">第一次段考 (1)</option><option value="2">第二次段考 (2)</option><option value="3">第三次段考 (3)</option></select><div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"><i class="fas fa-chevron-down text-xl"></i></div></div></div>
@@ -398,6 +408,14 @@
         window.addEventListener('load', ()=>{
             fetchYears(); fetchQuotes(); fetchGameData(); fetchPokemon();
             fetchChallengeCount(); // Initial fetch
+            
+            // ========== 加入延遲清空機制，防止瀏覽器在載入後強行填入 ==========
+            setTimeout(() => {
+                const sidInput = document.getElementById('studentId');
+                const pwInput = document.getElementById('idLast4');
+                if(sidInput) sidInput.value = '';
+                if(pwInput) pwInput.value = '';
+            }, 100);
         });
 
         async function callAPI(payload) {
@@ -550,7 +568,15 @@
             currentQuestion=gameData[Math.floor(Math.random()*gameData.length)];
             document.getElementById('q-word').textContent=currentQuestion.question;
             document.getElementById('q-type').textContent=currentQuestion.type;
-            document.getElementById('gameAnalysis').classList.add('hidden');
+            
+            // 將字根字首分析移至出題時顯示
+            if(currentQuestion.analysis){
+                document.getElementById('gameAnalysisText').textContent=currentQuestion.analysis; 
+                document.getElementById('gameAnalysis').classList.remove('hidden');
+            } else {
+                document.getElementById('gameAnalysis').classList.add('hidden');
+            }
+
             document.getElementById('lastOneHint').classList.add('hidden');
             const opts=[...currentQuestion.options].sort(()=>Math.random()-0.5);
             document.getElementById('options-grid').innerHTML=opts.map(o=>`<button onclick="checkAnswer(this, '${o.replace(/'/g, "\\'")}')" class="game-option-btn w-full py-3 px-4 rounded-lg font-medium text-gray-700 shadow-sm">${o}</button>`).join('');
@@ -559,7 +585,7 @@
 
         function checkAnswer(btn, val){
             document.querySelectorAll('.game-option-btn').forEach(b=>b.disabled=true);
-            if(currentQuestion.analysis){document.getElementById('gameAnalysisText').textContent=currentQuestion.analysis; document.getElementById('gameAnalysis').classList.remove('hidden');}
+            
             if(val===currentQuestion.answer){
                 btn.classList.add('correct'); streak++;
                 document.getElementById('streak-count').textContent=streak;
